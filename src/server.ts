@@ -42,10 +42,10 @@ async function start() {
   });
 
   // Dev login (no LINE needed - dev only)
+    // Guest login (no LINE needed - for browser testing)
   fastify.post('/api/auth/dev-login', async (req, reply) => {
-    if (!isDev) {
-      return reply.code(404).send({ error: 'Not found' });
-    }
+    try {
+      
     try {
       const { name } = (req.body as { name?: string }) || {};
       const result = await devLogin(name);
