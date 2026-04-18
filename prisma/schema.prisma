@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== USERS =====
+model User {
+  id          Int       @id @default(autoincrement())
+  lineUserId  String    @unique @map("line_user_id")
+  displayName String?   @map("display_name")
+  pictureUrl  String?   @map("picture_url")
+  isBanned    Boolean   @default(false) @map("is_banned")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  wallet       Wallet?
+  matchesAsP1  Match[]       @relation("player1")
+  matchesAsP2  Match[]       @relation("player2")
+  matchesWon   Match[]       @relation("winner")
+  gameResults  GameResult[]
+  leaderboards Leaderboard[]
+
+  @@map("users")
+}
+
+// ===== WALLET (1 user = 1 wallet) =====
+model Wallet {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @unique @map("user_id")
+  balance   Decimal   @default(0) @db.Decimal(12, 2)
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+
+  @@map("wallets")
+}
+
+// ===== TRANSACTIONS LOG =====
+model Transaction {
+  id            Int       @id @default(autoincrement())
+  walletId      Int       @map("wallet_id")
+  type          String    // deposit, withdraw, entry_fee, prize, refund, platform_fee
+  amount        Decimal   @db.Decimal(12, 2)
+  balanceBefore Decimal   @map("balance_before") @db.Decimal(12, 2)
+  balanceAfter  Decimal   @map("balance_after") @db.Decimal(12, 2)
+  referenceId   String?   @map("reference_id")  // match_id
+  description   String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+  @@map("transactions")
+}
+
+// ===== MATCHES =====
+model Match {
+  id          String    @id @default(uuid())
+  gameType    String    @map("game_type")    // tap_battle, memory_flip, etc.
+  player1Id   Int       @map("player1_id")
+  player2Id   Int?      @map("player2_id")
+  entryFee    Decimal   @default(5) @map("entry_fee") @db.Decimal(12, 2)
+  prizePool   Decimal   @default(10) @map("prize_pool") @db.Decimal(12, 2)
+  platformFee Decimal   @default(0.50) @map("platform_fee") @db.Decimal(12, 2)
+  status      String    @default("waiting")  // waiting, playing, finished, cancelled
+  winnerId    Int?      @map("winner_id")
+  isDraw      Boolean   @default(false) @map("is_draw")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  startedAt   DateTime? @map("started_at")
+  finishedAt  DateTime? @map("finished_at")
+
+  player1     User         @relation("player1", fields: [player1Id], references: [id])
+  player2     User?        @relation("player2", fields: [player2Id], references: [id])
+  winner      User?        @relation("winner", fields: [winnerId], references: [id])
+  gameResults GameResult[]
+
+  @@index([status])
+  @@index([player1Id, player2Id])
+  @@map("matches")
+}
+
+// ===== GAME RESULTS (score per player per match) =====
+model GameResult {
+  id          Int       @id @default(autoincrement())
+  matchId     String    @map("match_id")
+  userId      Int       @map("user_id")
+  score       Int       @default(0)
+  playData    Json?     @map("play_data")    // raw input log for anti-cheat
+  isValid     Boolean   @default(true) @map("is_valid")
+  submittedAt DateTime  @default(now()) @map("submitted_at")
+
+  match Match @relation(fields: [matchId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@index([matchId])
+  @@map("game_results")
+}
+
+// ===== LEADERBOARD =====
+model Leaderboard {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  gameType   String    @map("game_type")
+  totalWins  Int       @default(0) @map("total_wins")
+  totalLoss  Int       @default(0) @map("total_loss")
+  totalDraws Int       @default(0) @map("total_draws")
+  totalEarned Decimal  @default(0) @map("total_earned") @db.Decimal(12, 2)
+  winStreak  Int       @default(0) @map("win_streak")
+  bestStreak Int       @default(0) @map("best_streak")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, gameType])
+  @@index([gameType, totalWins(sort: Desc)])
+  @@map("leaderboard")
+}
