@@ -41,11 +41,8 @@ async function start() {
     }
   });
 
-  // Dev login (no LINE needed - dev only)
-    // Guest login (no LINE needed - for browser testing)
+  // Guest login (no LINE needed - for browser testing)
   fastify.post('/api/auth/dev-login', async (req, reply) => {
-    try {
-      
     try {
       const { name } = (req.body as { name?: string }) || {};
       const result = await devLogin(name);
@@ -101,7 +98,6 @@ async function start() {
     console.log('⚠️ Client build not found at:', clientDist);
     console.log('   Serving API only mode');
 
-    // Fallback: serve a simple HTML page
     fastify.get('/', async (req, reply) => {
       reply.type('text/html').send(getFallbackHTML());
     });
