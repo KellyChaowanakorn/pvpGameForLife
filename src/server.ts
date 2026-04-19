@@ -6,7 +6,7 @@ import { Server } from 'socket.io';
 import path from 'path';
 import fs from 'fs';
 import prisma from './db/prisma';
-import { setupSocket } from './socket';
+import { setupSocket, getSystemStats } from './socket';
 import { MatchService } from './db/match';
 import { loginWithLine, devLogin } from './auth';
 
@@ -73,7 +73,8 @@ async function start() {
   fastify.get('/api/stats', async () => {
     const users = await prisma.user.count();
     const matches = await prisma.match.count({ where: { status: 'finished' } });
-    return { totalUsers: users, totalMatches: matches };
+    const live = getSystemStats();
+    return { totalUsers: users, totalMatches: matches, live };
   });
 
   // ===== Serve React (only if build exists) =====
