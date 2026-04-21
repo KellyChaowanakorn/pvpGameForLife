@@ -17,3 +17,10 @@ body { font-family: 'Inter', sans-serif; background: #0F212E; color: #F1F5F9; mi
   70% { transform: scale(0.95); }
   100% { transform: scale(1); opacity: 1; }
 }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-4px); }
+}
+

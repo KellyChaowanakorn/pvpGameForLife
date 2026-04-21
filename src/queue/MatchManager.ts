@@ -1,4 +1,6 @@
-export type MatchStatus = 'QUEUED' | 'COUNTDOWN' | 'ACTIVE' | 'FINISHED';
+import { GamePlugin } from '../games/GamePlugin';
+
+export type MatchStatus = 'COUNTDOWN' | 'ACTIVE' | 'FINISHED';
 
 export interface MatchPlayer {
   socketId: string;
@@ -9,123 +11,84 @@ export interface MatchPlayer {
 
 export interface ActiveMatch {
   id: string;
-  gameType: string;
+  gameType: string;       // e.g. 'target_tap', 'combo_tap', 'endurance'
   status: MatchStatus;
   p1: MatchPlayer;
   p2: MatchPlayer;
-  scores: Record<string, number>;    // socketId -> score
-  taps: Record<string, number[]>;    // socketId -> timestamps (anti-cheat)
-  roomId: string;                     // Socket.IO room
+  roomId: string;
+  game: GamePlugin;       // game logic handler
   startedAt: number | null;
   createdAt: number;
 }
 
 export class MatchManager {
   private matches: Record<string, ActiveMatch> = {};
-  private playerMatch: Record<string, string> = {};  // socketId -> matchId
+  private playerMatch: Record<string, string> = {};
 
-  // Create a new match
-  create(matchId: string, gameType: string, p1: MatchPlayer, p2: MatchPlayer): ActiveMatch {
+  create(matchId: string, gameType: string, p1: MatchPlayer, p2: MatchPlayer, game: GamePlugin): ActiveMatch {
     const roomId = `match:${matchId}`;
-
     const match: ActiveMatch = {
-      id: matchId,
-      gameType,
-      status: 'COUNTDOWN',
-      p1, p2,
-      scores: { [p1.socketId]: 0, [p2.socketId]: 0 },
-      taps: { [p1.socketId]: [], [p2.socketId]: [] },
-      roomId,
-      startedAt: null,
-      createdAt: Date.now(),
+      id: matchId, gameType, status: 'COUNTDOWN',
+      p1, p2, roomId, game,
+      startedAt: null, createdAt: Date.now(),
     };
-
     this.matches[matchId] = match;
     this.playerMatch[p1.socketId] = matchId;
     this.playerMatch[p2.socketId] = matchId;
-
-    console.log(`🎮 Match created: ${matchId} | ${p1.name} vs ${p2.name} | Status: COUNTDOWN`);
+    console.log(`🎮 Match created: ${matchId} | ${p1.name} vs ${p2.name} | Mode: ${gameType}`);
     return match;
   }
 
-  // Transition to ACTIVE
   startGame(matchId: string): ActiveMatch | null {
     const match = this.matches[matchId];
     if (!match || match.status !== 'COUNTDOWN') return null;
-
     match.status = 'ACTIVE';
     match.startedAt = Date.now();
-
     console.log(`▶️ Match ${matchId} → ACTIVE`);
     return match;
   }
 
-  // Record a tap
-  addTap(matchId: string, socketId: string): number | null {
+  processInput(matchId: string, socketId: string, input: any): number | null {
     const match = this.matches[matchId];
     if (!match || match.status !== 'ACTIVE') return null;
-    if (match.scores[socketId] === undefined) return null;
-
-    match.scores[socketId]++;
-    match.taps[socketId].push(Date.now());
-
-    return match.scores[socketId];
+    return match.game.processInput(socketId, input);
   }
 
-  // Transition to FINISHED
+  getScore(matchId: string, socketId: string): number {
+    const match = this.matches[matchId];
+    if (!match) return 0;
+    return match.game.getScore(socketId);
+  }
+
   finish(matchId: string): ActiveMatch | null {
     const match = this.matches[matchId];
     if (!match || match.status === 'FINISHED') return null;
-
     match.status = 'FINISHED';
-
-    // Cleanup player mapping
     delete this.playerMatch[match.p1.socketId];
     delete this.playerMatch[match.p2.socketId];
-
     console.log(`🏁 Match ${matchId} → FINISHED`);
-
-    // Auto-delete after 30s
     setTimeout(() => delete this.matches[matchId], 30000);
     return match;
   }
 
-  // Get match by ID
-  get(matchId: string): ActiveMatch | null {
-    return this.matches[matchId] || null;
-  }
-
-  // Get match by player socketId
+  get(matchId: string): ActiveMatch | null { return this.matches[matchId] || null; }
   getByPlayer(socketId: string): ActiveMatch | null {
-    const matchId = this.playerMatch[socketId];
-    return matchId ? this.matches[matchId] || null : null;
+    const id = this.playerMatch[socketId];
+    return id ? this.matches[id] || null : null;
   }
-
-  // Check if player is in a match
-  isPlayerBusy(socketId: string): boolean {
-    return !!this.playerMatch[socketId];
-  }
-
-  // Get opponent socketId
+  isPlayerBusy(socketId: string): boolean { return !!this.playerMatch[socketId]; }
   getOpponentSocketId(matchId: string, mySocketId: string): string | null {
-    const match = this.matches[matchId];
-    if (!match) return null;
-    return match.p1.socketId === mySocketId ? match.p2.socketId : match.p1.socketId;
+    const m = this.matches[matchId];
+    if (!m) return null;
+    return m.p1.socketId === mySocketId ? m.p2.socketId : m.p1.socketId;
   }
-
-  // Get all active match count
-  activeCount(): number {
-    return Object.values(this.matches).filter((m) => m.status === 'ACTIVE').length;
-  }
-
-  // Stats
   stats() {
     const all = Object.values(this.matches);
     return {
       total: all.length,
-      countdown: all.filter((m) => m.status === 'COUNTDOWN').length,
-      active: all.filter((m) => m.status === 'ACTIVE').length,
-      finished: all.filter((m) => m.status === 'FINISHED').length,
+      countdown: all.filter(m => m.status === 'COUNTDOWN').length,
+      active: all.filter(m => m.status === 'ACTIVE').length,
+      finished: all.filter(m => m.status === 'FINISHED').length,
     };
   }
 }

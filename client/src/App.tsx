@@ -2,7 +2,9 @@ import { useEffect } from 'react';
 import { useGameStore } from './lib/store';
 import { initSocket } from './lib/socket';
 import { fullLoginFlow } from './lib/liff';
+import { unlockAudio } from './lib/sounds';
 import Lobby from './pages/Lobby';
+import ModeSelect from './pages/ModeSelect';
 import Queue from './pages/Queue';
 import VsScreen from './pages/VsScreen';
 import Countdown from './pages/Countdown';
@@ -14,31 +16,24 @@ export default function App() {
 
   useEffect(() => {
     async function boot() {
-      // Step 1: Login (LIFF or dev)
       const auth = await fullLoginFlow();
-
       if (auth) {
-        // Step 2: Save auth state
         const store = useGameStore.getState();
         store.setAuth(auth.token, auth.user.displayName, auth.user.pictureUrl);
         store.setWallet(auth.wallet.balance);
-
-        // Step 3: Connect socket with auth
         initSocket();
-
-        // Step 4: Show lobby
         store.setScreen('lobby');
       }
     }
-
     boot();
   }, []);
 
   return (
-    <div className="min-h-screen bg-stake-bg font-sans">
+    <div className="min-h-screen bg-stake-bg font-sans" onTouchStart={unlockAudio} onClick={unlockAudio}>
       <div className="max-w-[440px] mx-auto px-4 py-4 min-h-screen">
         {screen === 'loading' && <LoadingScreen />}
         {screen === 'lobby' && <Lobby />}
+        {screen === 'modeSelect' && <ModeSelect />}
         {screen === 'queue' && <Queue />}
         {screen === 'vs' && <VsScreen />}
         {screen === 'countdown' && <Countdown />}

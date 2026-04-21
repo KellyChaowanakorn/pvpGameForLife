@@ -1,8 +1,7 @@
 import { useGameStore } from '../lib/store';
-import { findMatch } from '../lib/socket';
 
 const GAMES = [
-  { id: 'tap_battle', name: 'Tap Speed', icon: '⚡', desc: 'Tap faster than your opponent in 5s', color: '#00E701', ready: true },
+  { id: 'tap_battle', name: 'Tap Speed', icon: '⚡', desc: '3 modes: Target, Combo, Endurance', color: '#00E701', ready: true, hasSubmodes: true },
   { id: 'memory_flip', name: 'Memory Flip', icon: '🧠', desc: 'Match cards faster than opponent', color: '#E056A0', ready: false },
   { id: 'math_duel', name: 'Math Duel', icon: '🔢', desc: 'Solve math problems first', color: '#4FC3F7', ready: false },
   { id: 'aim_click', name: 'Aim Click', icon: '🎯', desc: 'Click targets with precision', color: '#F53B57', ready: false },
@@ -15,9 +14,13 @@ export default function Lobby() {
   const wallet = useGameStore((s) => s.wallet);
   const online = useGameStore((s) => s.onlineCount);
   const setWallet = useGameStore((s) => s.setWallet);
+  const setScreen = useGameStore((s) => s.setScreen);
 
   const deposit = () => setWallet(wallet + 50);
-  const play = (gameId: string) => findMatch(gameId);
+  const play = (gameId: string) => {
+    // Tap Speed has sub-modes → go to mode select
+    setScreen('modeSelect');
+  };
 
   return (
     <div className="animate-[fadeIn_0.3s_ease] -mx-4 -mt-4">

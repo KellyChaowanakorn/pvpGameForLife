@@ -2,7 +2,7 @@ import { useGameStore } from '../lib/store';
 import { findMatch } from '../lib/socket';
 
 export default function Result() {
-  const { result, resultData, setScreen } = useGameStore();
+  const { result, resultData, setScreen, gameMode } = useGameStore();
 
   if (!result || !resultData) return null;
 
@@ -60,7 +60,7 @@ export default function Result() {
 
       {/* Buttons */}
       <button
-        onClick={() => findMatch('tap_battle')}
+        onClick={() => findMatch(gameMode)}
         className="w-full max-w-[280px] bg-neon text-stake-bg font-extrabold py-3.5 rounded-xl text-sm uppercase tracking-wider mb-2 transition-all active:scale-97"
       >
         Play again

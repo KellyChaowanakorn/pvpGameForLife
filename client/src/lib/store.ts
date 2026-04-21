@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
-export type Screen = 'loading' | 'lobby' | 'queue' | 'vs' | 'countdown' | 'game' | 'result';
+export type Screen = 'loading' | 'lobby' | 'modeSelect' | 'queue' | 'vs' | 'countdown' | 'game' | 'result';
+export type GameMode = 'target_tap' | 'combo_tap' | 'endurance';
 
 interface GameStore {
   // Auth
@@ -22,6 +23,12 @@ interface GameStore {
   // Online
   onlineCount: number;
   setOnlineCount: (n: number) => void;
+
+  // Game Mode
+  gameMode: GameMode;
+  gameConfig: any;
+  setGameMode: (m: GameMode) => void;
+  setGameConfig: (c: any) => void;
 
   // Match
   matchId: string | null;
@@ -67,6 +74,11 @@ export const useGameStore = create<GameStore>((set) => ({
   onlineCount: 0,
   setOnlineCount: (onlineCount) => set({ onlineCount }),
 
+  gameMode: 'target_tap',
+  gameConfig: null,
+  setGameMode: (gameMode) => set({ gameMode }),
+  setGameConfig: (gameConfig) => set({ gameConfig }),
+
   matchId: null,
   opponentName: '',
   prize: '0',
@@ -77,7 +89,7 @@ export const useGameStore = create<GameStore>((set) => ({
 
   myScore: 0,
   oppScore: 0,
-  timeLeft: 5,
+  timeLeft: 10,
   setMyScore: (myScore) => set({ myScore }),
   setOppScore: (oppScore) => set({ oppScore }),
   setTimeLeft: (timeLeft) => set({ timeLeft }),
@@ -86,5 +98,5 @@ export const useGameStore = create<GameStore>((set) => ({
   resultData: null,
   setResult: (result, resultData) => set({ result, resultData }),
 
-  resetGame: () => set({ myScore: 0, oppScore: 0, timeLeft: 5, result: null, resultData: null }),
+  resetGame: () => set({ myScore: 0, oppScore: 0, timeLeft: 10, result: null, resultData: null, gameConfig: null }),
 }));
