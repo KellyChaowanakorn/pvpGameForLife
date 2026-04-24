@@ -89,7 +89,7 @@ export const useGameStore = create<GameStore>((set) => ({
 
   myScore: 0,
   oppScore: 0,
-  timeLeft: 10,
+  timeLeft: 30,
   setMyScore: (myScore) => set({ myScore }),
   setOppScore: (oppScore) => set({ oppScore }),
   setTimeLeft: (timeLeft) => set({ timeLeft }),
@@ -98,5 +98,5 @@ export const useGameStore = create<GameStore>((set) => ({
   resultData: null,
   setResult: (result, resultData) => set({ result, resultData }),
 
-  resetGame: () => set({ myScore: 0, oppScore: 0, timeLeft: 10, result: null, resultData: null, gameConfig: null }),
+  resetGame: () => set({ myScore: 0, oppScore: 0, timeLeft: 30, result: null, resultData: null, gameConfig: null }),
 }));

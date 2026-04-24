@@ -8,7 +8,7 @@ const MODES = [
     icon: '🎯',
     desc: 'กดเป้าที่สุ่มขึ้นให้ตรงจุด!',
     detail: 'เป้ายิ่งเล็ก = ยิ่งได้คะแนนเยอะ (1-3 แต้ม)',
-    how: '👆 กดเป้าที่ปรากฏบนจอให้เร็วที่สุด',
+    how: '👆 กดเป้าให้เร็ว! ⭐ทอง +5 · 💀บอส +10 (กด 3 ครั้ง)',
     color: '#FF6B6B',
     gradient: 'from-red-500/20 to-orange-500/20',
   },
@@ -17,8 +17,8 @@ const MODES = [
     name: 'Combo Tap',
     icon: '🔥',
     desc: 'สีขึ้นมา กดปุ่มสีให้ตรง!',
-    detail: 'Combo ยิ่งยาว = คะแนน x5 · กดผิด = combo หัก',
-    how: '🎨 ดูสีที่ขึ้น แล้วกดปุ่มสีข้างล่างให้ตรง',
+    detail: 'Combo 10+ = 🔥 Fire Mode! · 🌈 Rainbow = +10',
+    how: '🎨 ดูสีตรงกลาง กดปุ่มสีด้านล่างให้ตรง!',
     color: '#FFD93D',
     gradient: 'from-yellow-500/20 to-amber-500/20',
   },
@@ -27,8 +27,8 @@ const MODES = [
     name: 'Endurance',
     icon: '💎',
     desc: 'กดจังหวะให้ตรงวง!',
-    detail: 'Perfect = 3 แต้ม · Good = 1 · Miss = -1',
-    how: '⭕ รอวงเล็กขยายมาชิดวงใหญ่ แล้วกด!',
+    detail: 'Perfect = 3 · ☠️ Danger Perfect = 8 · Double Beat!',
+    how: '⭕ วงวิ่งเข้ามา กดตอนชิดวงใหญ่! BPM เร็วขึ้นเรื่อยๆ',
     color: '#6BCB77',
     gradient: 'from-emerald-500/20 to-teal-500/20',
   },
@@ -89,7 +89,7 @@ export default function ModeSelect() {
 
       {/* Timer info */}
       <div className="text-center text-stake-gray text-xs mt-6">
-        ⏱ ทุก mode เล่น 10 วินาที · ใครคะแนนสูงกว่าชนะ
+        ⏱ ทุก mode เล่น 30 วินาที · 3 Phases · ใครคะแนนสูงกว่าชนะ
       </div>
     </div>
   );
