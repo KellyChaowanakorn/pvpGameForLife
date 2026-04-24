@@ -26,25 +26,28 @@ export default function Lobby() {
     <div className="animate-[fadeIn_0.3s_ease] -mx-4 -mt-4">
       {/* Hero Banner */}
       <div
-        className="relative w-full h-52 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/bg-arena.png)' }}
+        className="relative w-full h-56 bg-cover bg-center"
+        style={{ backgroundImage: 'url(/bg-main.png)' }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-stake-bg via-stake-bg/40 to-transparent" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #0a0a1a 0%, #0a0a1a60 40%, transparent 100%)' }} />
+
+        {/* Character */}
+        <img src="/char4.png" alt="" className="absolute bottom-0 right-2 h-48 z-[5] drop-shadow-2xl" style={{ filter: 'drop-shadow(0 0 20px #a855f730)' }} />
 
         {/* Nav */}
         <div className="relative z-10 flex items-center justify-between px-4 pt-4">
           <div className="text-xl font-black tracking-tight drop-shadow-lg">
-            <span className="text-neon">Skill</span> Arena
+            <span className="text-arcane-purple">Skill</span> Arena
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-white/70 bg-black/30 px-2.5 py-1 rounded-full backdrop-blur-sm">
-            <div className="w-2 h-2 rounded-full bg-neon animate-pulse" />
+          <div className="flex items-center gap-1.5 text-xs text-white/70 bg-black/40 px-2.5 py-1 rounded-full backdrop-blur-sm border border-arcane-purple/20">
+            <div className="w-2 h-2 rounded-full bg-arcane-purple animate-pulse" />
             {online} online
           </div>
         </div>
 
         {/* Tagline */}
-        <div className="absolute bottom-4 left-0 right-0 text-center z-10">
-          <div className="text-[11px] font-bold uppercase tracking-[4px] text-white/60">
+        <div className="absolute bottom-4 left-4 z-10">
+          <div className="text-[11px] font-bold uppercase tracking-[3px] text-white/50">
             No luck. Just skill.
           </div>
         </div>
@@ -53,12 +56,12 @@ export default function Lobby() {
       {/* Content */}
       <div className="px-4">
         {/* Wallet - floats over banner edge */}
-        <div className="bg-stake-card/80 backdrop-blur-sm rounded-xl p-4 mb-4 -mt-6 relative z-20 flex items-center justify-between border border-white/5">
+        <div className="bg-stake-card/80 backdrop-blur-sm rounded-xl p-4 mb-4 -mt-6 relative z-20 flex items-center justify-between border border-arcane-purple/20">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-stake-border flex items-center justify-center text-sm">💰</div>
             <div>
               <div className="text-[11px] text-stake-gray uppercase tracking-wider font-semibold">Balance</div>
-              <div className="text-xl font-extrabold text-neon tabular-nums">฿{wallet.toFixed(2)}</div>
+              <div className="text-xl font-extrabold text-arcane-purple tabular-nums">฿{wallet.toFixed(2)}</div>
             </div>
           </div>
           <button
@@ -79,7 +82,7 @@ export default function Lobby() {
               onClick={() => g.ready && play(g.id)}
               className={`w-full bg-stake-card rounded-xl p-3.5 flex items-center gap-3 text-left transition-all border-[1.5px]
                 ${g.ready
-                  ? 'border-transparent hover:border-neon hover:bg-stake-hover active:scale-[0.98] cursor-pointer'
+                  ? 'border-transparent hover:border-arcane-purple hover:bg-stake-hover active:scale-[0.98] cursor-pointer'
                   : 'border-transparent opacity-30 cursor-not-allowed'
                 }`}
             >
@@ -93,7 +96,7 @@ export default function Lobby() {
                 <div className="font-bold text-sm flex items-center gap-1.5">
                   {g.name}
                   {g.ready ? (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-neon/15 text-neon uppercase">Live</span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-arcane-purple/15 text-arcane-purple uppercase">Live</span>
                   ) : (
                     <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-stake-border text-stake-gray uppercase">Soon</span>
                   )}
@@ -101,7 +104,7 @@ export default function Lobby() {
                 <div className="text-stake-gray text-[11px] mt-0.5 truncate">{g.desc}</div>
               </div>
               <div className="text-right flex-shrink-0">
-                <div className="text-neon font-bold text-sm">฿5</div>
+                <div className="text-arcane-purple font-bold text-sm">฿5</div>
                 <div className="text-stake-gray2 text-[9px] uppercase">Entry</div>
               </div>
             </button>

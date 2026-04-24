@@ -11,13 +11,13 @@ export default function Result() {
 
   const icon = isWin ? '🏆' : isDraw ? '🤝' : '😤';
   const title = isWin ? 'You win!' : isDraw ? 'Draw!' : 'You lose';
-  const titleColor = isWin ? 'text-neon' : isDraw ? 'text-gold' : 'text-danger';
+  const titleColor = isWin ? 'text-arcane-purple' : isDraw ? 'text-gold' : 'text-danger';
 
   let prizeText = '';
   let prizeColor = '';
   if (isWin) {
     prizeText = `+฿${resultData.prize.toFixed(2)}`;
-    prizeColor = 'text-neon';
+    prizeColor = 'text-arcane-purple';
   } else if (isDraw) {
     prizeText = `Refund ฿${resultData.refund.toFixed(2)}`;
     prizeColor = 'text-gold';
@@ -43,13 +43,13 @@ export default function Result() {
       <div className="bg-stake-card rounded-xl px-7 py-4 flex gap-9 my-4 border border-stake-border">
         <div className="text-center">
           <div className="text-[11px] text-stake-gray uppercase font-semibold mb-1">You</div>
-          <div className={`text-3xl font-black ${isWin || isDraw ? 'text-neon' : 'text-danger'}`}>
+          <div className={`text-3xl font-black ${isWin || isDraw ? 'text-arcane-purple' : 'text-danger'}`}>
             {resultData.yourScore}
           </div>
         </div>
         <div className="text-center">
           <div className="text-[11px] text-stake-gray uppercase font-semibold mb-1">Opponent</div>
-          <div className={`text-3xl font-black ${isWin ? 'text-danger' : isDraw ? 'text-neon' : 'text-neon'}`}>
+          <div className={`text-3xl font-black ${isWin ? 'text-danger' : isDraw ? 'text-arcane-purple' : 'text-arcane-purple'}`}>
             {resultData.oppScore}
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function Result() {
       {/* Buttons */}
       <button
         onClick={() => findMatch(gameMode)}
-        className="w-full max-w-[280px] bg-neon text-stake-bg font-extrabold py-3.5 rounded-xl text-sm uppercase tracking-wider mb-2 transition-all active:scale-97"
+        className="w-full max-w-[280px] bg-arcane-purple text-stake-bg font-extrabold py-3.5 rounded-xl text-sm uppercase tracking-wider mb-2 transition-all active:scale-97"
       >
         Play again
       </button>

@@ -21,12 +21,17 @@ export interface GamePlugin {
   getMaxScore(): number;
 }
 
-// ===== TARGET TAP (30s - boss, gold, power-ups) =====
+// ===== HELPER =====
+function seededRandom(seed: number) {
+  let s = seed;
+  return () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+}
+
+// ===== TARGET TAP (30s) =====
 interface Target {
   id: number; x: number; y: number; size: number;
   appearAt: number; duration: number; points: number;
-  type: 'normal' | 'gold' | 'boss';
-  hitsRequired: number;
+  type: 'normal' | 'gold' | 'boss'; hitsRequired: number;
 }
 
 export class TargetTapGame implements GamePlugin {
@@ -41,7 +46,7 @@ export class TargetTapGame implements GamePlugin {
 
   generateConfig(): GameConfig {
     const seed = Date.now();
-    const rng = this.seededRandom(seed);
+    const rng = seededRandom(seed);
     this.targets = [];
     let id = 0;
 
@@ -94,10 +99,9 @@ export class TargetTapGame implements GamePlugin {
   getScore(playerId: string): number { return this.scores[playerId] || 0; }
   validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= this.targets.length * 5; }
   getMaxScore(): number { return this.targets.reduce((s, t) => s + t.points, 0); }
-  private seededRandom(seed: number) { let s = seed; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; }
 }
 
-// ===== COMBO TAP (30s - phases, rainbow, fire mode) =====
+// ===== COMBO TAP (30s) =====
 interface ComboStep {
   id: number; color: string; showAt: number; timeLimit: number;
   type: 'normal' | 'rainbow';
@@ -116,7 +120,7 @@ export class ComboTapGame implements GamePlugin {
 
   generateConfig(): GameConfig {
     const seed = Date.now();
-    const rng = this.seededRandom(seed);
+    const rng = seededRandom(seed);
     const colors = ['red', 'blue', 'green', 'yellow'];
     this.steps = [];
     let id = 0; let t = 600;
@@ -151,7 +155,7 @@ export class ComboTapGame implements GamePlugin {
           const combo = this.combos[playerId];
           let bonus = Math.min(combo, 5);
           if (step.type === 'rainbow') bonus = 10;
-          if (combo >= 10) bonus += 3; // fire mode
+          if (combo >= 10) bonus += 3;
           this.scores[playerId] += bonus;
         } else {
           this.combos[playerId] = 0;
@@ -166,10 +170,9 @@ export class ComboTapGame implements GamePlugin {
   getScore(playerId: string): number { return this.scores[playerId] || 0; }
   validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= this.steps.length * 2; }
   getMaxScore(): number { return this.steps.length * 10; }
-  private seededRandom(seed: number) { let s = seed; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; }
 }
 
-// ===== ENDURANCE (30s - double beats, danger zones) =====
+// ===== ENDURANCE (30s) =====
 interface Beat {
   id: number; time: number; window: number;
   type: 'normal' | 'double' | 'danger';
@@ -187,7 +190,7 @@ export class EnduranceGame implements GamePlugin {
 
   generateConfig(): GameConfig {
     const seed = Date.now();
-    const rng = this.seededRandom(seed);
+    const rng = seededRandom(seed);
     this.beats = [];
     let id = 0; let t = 800; let interval = 700;
 
@@ -212,36 +215,60 @@ export class EnduranceGame implements GamePlugin {
   }
 
   processInput(playerId: string, input: PlayerInput): number {
-    if (this.scores[playerId] === undefined) { this.scores[playerId] = 0; this.inputs[playerId] = []; this.beatHits[playerId] = new Set(); }
+    if (this.scores[playerId] === undefined) {
+      this.scores[playerId] = 0;
+      this.inputs[playerId] = [];
+      this.beatHits[playerId] = new Set();
+    }
     this.inputs[playerId].push(input);
+
     if (input.type === 'beat_tap') {
       const tapTime = input.time;
-      let bestBeat: Beat | null = null; let bestDiff = Infinity;
+      let bestBeat: Beat | null = null;
+      let bestDiff = Infinity;
+
       for (const beat of this.beats) {
         if (this.beatHits[playerId].has(beat.id)) continue;
         const diff = Math.abs(tapTime - beat.time);
-        if (diff < bestDiff && diff <= beat.window * 3) { bestDiff = diff; bestBeat = beat; }
+        if (diff < bestDiff && diff <= beat.window * 3) {
+          bestDiff = diff;
+          bestBeat = beat;
+        }
       }
+
       if (bestBeat) {
         this.beatHits[playerId].add(bestBeat.id);
-        if (bestBeat.type === 'danger') {
-          if (bestDiff <= bestBeat.window * 0.3) this.scores[playerId] += 8;
-          else if (bestDiff <= bestBeat.window) this.scores[playerId] += 3;
-          else this.scores[playerId] = Math.max(0, this.scores[playerId] - 5);
+        const isDanger = bestBeat.type === 'danger';
+
+        if (bestDiff <= bestBeat.window * 0.3) {
+          // PERFECT
+          this.scores[playerId] += isDanger ? 8 : 3;
+        } else if (bestDiff <= bestBeat.window) {
+          // GOOD
+          this.scores[playerId] += isDanger ? 3 : 1;
         } else {
-          if (bestDiff <= bestBeat.window * 0.3) this.scores[playerId] += 3;
-          else if (bestDiff <= bestBeat.window) this.scores[playerId] += 1;
-          else this.scores[playerId] = Math.max(0, this.scores[playerId] - 1);
+          // LATE - still give 1 point
+          this.scores[playerId] += 1;
         }
+      } else {
+        // No beat nearby - still give 1 point per tap (prevents draw)
+        this.scores[playerId] += 1;
       }
     }
     return this.scores[playerId];
   }
 
-  getScore(playerId: string): number { return this.scores[playerId] || 0; }
-  validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= this.beats.length * 3; }
-  getMaxScore(): number { return this.beats.length * 5; }
-  private seededRandom(seed: number) { let s = seed; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; }
+  getScore(playerId: string): number {
+    return this.scores[playerId] || 0;
+  }
+
+  validate(playerId: string): boolean {
+    return (this.inputs[playerId]?.length || 0) <= this.beats.length * 5;
+  }
+
+  getMaxScore(): number {
+    return this.beats.length * 5;
+  }
 }
 
 // ===== FACTORY =====

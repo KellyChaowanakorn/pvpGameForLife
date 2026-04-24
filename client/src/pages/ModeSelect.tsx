@@ -6,6 +6,7 @@ const MODES = [
     id: 'target_tap' as GameMode,
     name: 'Target Tap',
     icon: '🎯',
+    char: '/char1.png',
     desc: 'กดเป้าที่สุ่มขึ้นให้ตรงจุด!',
     detail: 'เป้ายิ่งเล็ก = ยิ่งได้คะแนนเยอะ (1-3 แต้ม)',
     how: '👆 กดเป้าให้เร็ว! ⭐ทอง +5 · 💀บอส +10 (กด 3 ครั้ง)',
@@ -16,6 +17,7 @@ const MODES = [
     id: 'combo_tap' as GameMode,
     name: 'Combo Tap',
     icon: '🔥',
+    char: '/char2.png',
     desc: 'สีขึ้นมา กดปุ่มสีให้ตรง!',
     detail: 'Combo 10+ = 🔥 Fire Mode! · 🌈 Rainbow = +10',
     how: '🎨 ดูสีตรงกลาง กดปุ่มสีด้านล่างให้ตรง!',
@@ -26,6 +28,7 @@ const MODES = [
     id: 'endurance' as GameMode,
     name: 'Endurance',
     icon: '💎',
+    char: '/char3.png',
     desc: 'กดจังหวะให้ตรงวง!',
     detail: 'Perfect = 3 · ☠️ Danger Perfect = 8 · Double Beat!',
     how: '⭕ วงวิ่งเข้ามา กดตอนชิดวงใหญ่! BPM เร็วขึ้นเรื่อยๆ',
@@ -60,7 +63,7 @@ export default function ModeSelect() {
           <button
             key={mode.id}
             onClick={() => select(mode.id)}
-            className="w-full text-left bg-stake-card rounded-2xl p-5 border-[1.5px] border-transparent hover:border-neon transition-all active:scale-[0.98] group relative overflow-hidden"
+            className="w-full text-left bg-stake-card rounded-2xl p-5 border-[1.5px] border-transparent hover:border-arcane-purple transition-all active:scale-[0.98] group relative overflow-hidden"
           >
             {/* Glow effect on hover */}
             <div className={`absolute inset-0 bg-gradient-to-br ${mode.gradient} opacity-0 group-hover:opacity-100 transition-opacity`} />
@@ -76,10 +79,10 @@ export default function ModeSelect() {
                 <div className="font-bold text-base mb-1">{mode.name}</div>
                 <div className="text-white/80 text-sm mb-1">{mode.desc}</div>
                 <div className="text-stake-gray text-xs mb-1">{mode.detail}</div>
-                <div className="text-neon/80 text-[11px] font-medium">{mode.how}</div>
+                <div className="text-arcane-purple/80 text-[11px] font-medium">{mode.how}</div>
               </div>
               <div className="text-right flex-shrink-0">
-                <div className="text-neon font-bold text-sm">฿5</div>
+                <div className="text-arcane-purple font-bold text-sm">฿5</div>
                 <div className="text-stake-gray2 text-[9px] uppercase">Entry</div>
               </div>
             </div>

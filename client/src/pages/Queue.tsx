@@ -18,7 +18,7 @@ export default function Queue() {
       <div className="w-12 h-12 border-3 border-stake-border border-t-neon rounded-full animate-spin mb-5" style={{ borderWidth: '3px' }} />
       <div className="text-lg font-bold mb-1">Finding opponent</div>
       <div className="text-stake-gray text-sm mb-1">Matching you with a player...</div>
-      <div className="text-neon text-sm font-semibold">{dots}</div>
+      <div className="text-arcane-purple text-sm font-semibold">{dots}</div>
       <button
         onClick={cancelQueue}
         className="mt-6 bg-stake-hover border border-stake-border text-stake-gray px-8 py-2.5 rounded-lg text-sm font-semibold transition-all active:scale-95"

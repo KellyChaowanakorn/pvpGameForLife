@@ -127,9 +127,13 @@ export default function ComboTapGame() {
 
       {/* Game Area */}
       <div className="flex-1 relative rounded-2xl overflow-hidden rune-border flex items-center justify-center"
-        style={{ background: fireMode
-          ? 'linear-gradient(180deg, #1a0500 0%, #2a0800 50%, #0a0a1a 100%)'
-          : 'linear-gradient(180deg, #0d0d25 0%, #12082a 50%, #0a0a1a 100%)' }}>
+        style={{ backgroundImage: 'url(/bg-main.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+
+        {/* Dark overlay */}
+        <div className="absolute inset-0" style={{ background: fireMode ? 'rgba(26,5,0,0.8)' : 'rgba(10,10,26,0.75)' }} />
+
+        {/* Character */}
+        <img src="/char2.png" alt="" className="absolute bottom-0 right-0 w-28 opacity-20 pointer-events-none z-0" style={{ filter: 'drop-shadow(0 0 10px #a855f740)' }} />
 
         {flash === 'correct' && <div className="absolute inset-0 bg-arcane-purple/10 z-10" />}
         {flash === 'wrong' && <div className="absolute inset-0 bg-danger/20 z-10" />}

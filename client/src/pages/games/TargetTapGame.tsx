@@ -97,7 +97,13 @@ export default function TargetTapGame() {
       </div>
 
       {/* Game Area */}
-      <div className="flex-1 relative rounded-2xl overflow-hidden rune-border" style={{ background: 'linear-gradient(180deg, #0d0d25 0%, #12082a 50%, #0a0a1a 100%)' }}>
+      <div className="flex-1 relative rounded-2xl overflow-hidden rune-border" style={{ backgroundImage: 'url(/bg-main.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        {/* Dark overlay */}
+        <div className="absolute inset-0" style={{ background: phase === 3 ? 'rgba(20,0,5,0.75)' : 'rgba(10,10,26,0.7)' }} />
+
+        {/* Character watermark */}
+        <img src="/char1.png" alt="" className="absolute bottom-0 left-0 w-24 opacity-20 pointer-events-none" style={{ filter: 'drop-shadow(0 0 10px #a855f740)' }} />
+
         {/* Rune grid */}
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle, #a855f7 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
 

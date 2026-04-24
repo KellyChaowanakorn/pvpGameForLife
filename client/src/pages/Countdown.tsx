@@ -15,7 +15,7 @@ export default function Countdown() {
     <div className="flex flex-col items-center justify-center min-h-[75vh] gap-6">
       <div
         key={num}
-        className="text-8xl font-black text-neon animate-[pop_0.4s_ease]"
+        className="text-8xl font-black text-arcane-purple animate-[pop_0.4s_ease]"
       >
         {num}
       </div>

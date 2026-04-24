@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { useGameStore } from './store';
-import { playCountdown, playGo, playWin, playLose, unlockAudio } from './sounds';
+import { playCountdown, playGo, playWin, playLose, unlockAudio, startBGMusic, stopBGMusic } from './sounds';
 
 const URL = import.meta.env.DEV ? 'http://localhost:3000' : '';
 export const socket: Socket = io(URL, { autoConnect: false });
@@ -62,12 +62,15 @@ export function initSocket() {
     s.setMatch(data.matchId, s.opponentName, s.prize);
     s.setScreen('game');
 
+    // Start background music
+    startBGMusic(s.gameMode);
+
     const start = Date.now();
-    const dur = data.duration || 10000;
+    const dur = data.duration || 30000;
     const interval = setInterval(() => {
       const left = Math.max(0, (dur - (Date.now() - start)) / 1000);
       useGameStore.getState().setTimeLeft(left);
-      if (left <= 0) clearInterval(interval);
+      if (left <= 0) { clearInterval(interval); stopBGMusic(); }
     }, 50);
   });
 
@@ -80,6 +83,7 @@ export function initSocket() {
   });
 
   socket.on('match_result', (data: any) => {
+    stopBGMusic();
     const s = useGameStore.getState();
     s.setResult(data.result, data);
     if (data.result === 'win') playWin();
