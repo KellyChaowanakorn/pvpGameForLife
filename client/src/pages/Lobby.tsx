@@ -1,7 +1,7 @@
 import { useGameStore } from '../lib/store';
 
 const GAMES = [
-  { id: 'tap_battle', name: 'Tap Speed', icon: '⚡', desc: '3 modes: Target, Combo, Endurance', color: '#00E701', ready: true, hasSubmodes: true },
+  { id: 'tap_battle', name: 'Tap Speed', icon: '⚡', desc: '3 modes: Target, Combo, Endurance', color: '#a855f7', ready: true },
   { id: 'memory_flip', name: 'Memory Flip', icon: '🧠', desc: 'Match cards faster than opponent', color: '#E056A0', ready: false },
   { id: 'math_duel', name: 'Math Duel', icon: '🔢', desc: 'Solve math problems first', color: '#4FC3F7', ready: false },
   { id: 'aim_click', name: 'Aim Click', icon: '🎯', desc: 'Click targets with precision', color: '#F53B57', ready: false },
@@ -17,22 +17,13 @@ export default function Lobby() {
   const setScreen = useGameStore((s) => s.setScreen);
 
   const deposit = () => setWallet(wallet + 50);
-  const play = (gameId: string) => {
-    // Tap Speed has sub-modes → go to mode select
-    setScreen('modeSelect');
-  };
+  const play = () => setScreen('modeSelect');
 
   return (
     <div className="animate-[fadeIn_0.3s_ease] -mx-4 -mt-4">
       {/* Hero Banner */}
-      <div
-        className="relative w-full h-56 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/bg-main.png)' }}
-      >
+      <div className="relative w-full h-52 bg-cover bg-center" style={{ backgroundImage: 'url(/bg-arena.png)' }}>
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #0a0a1a 0%, #0a0a1a60 40%, transparent 100%)' }} />
-
-        {/* Character */}
-        <img src="/char4.png" alt="" className="absolute bottom-0 right-2 h-48 z-[5] drop-shadow-2xl" style={{ filter: 'drop-shadow(0 0 20px #a855f730)' }} />
 
         {/* Nav */}
         <div className="relative z-10 flex items-center justify-between px-4 pt-4">
@@ -46,16 +37,14 @@ export default function Lobby() {
         </div>
 
         {/* Tagline */}
-        <div className="absolute bottom-4 left-4 z-10">
-          <div className="text-[11px] font-bold uppercase tracking-[3px] text-white/50">
-            No luck. Just skill.
-          </div>
+        <div className="absolute bottom-4 left-0 right-0 text-center z-10">
+          <div className="text-[11px] font-bold uppercase tracking-[4px] text-white/50">No luck. Just skill.</div>
         </div>
       </div>
 
       {/* Content */}
       <div className="px-4">
-        {/* Wallet - floats over banner edge */}
+        {/* Wallet */}
         <div className="bg-stake-card/80 backdrop-blur-sm rounded-xl p-4 mb-4 -mt-6 relative z-20 flex items-center justify-between border border-arcane-purple/20">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-stake-border flex items-center justify-center text-sm">💰</div>
@@ -64,12 +53,7 @@ export default function Lobby() {
               <div className="text-xl font-extrabold text-arcane-purple tabular-nums">฿{wallet.toFixed(2)}</div>
             </div>
           </div>
-          <button
-            onClick={deposit}
-            className="bg-stake-border text-white font-semibold px-4 py-2 rounded-lg text-xs transition-all active:scale-95 hover:bg-stake-hover"
-          >
-            + Deposit
-          </button>
+          <button onClick={deposit} className="bg-stake-border text-white font-semibold px-4 py-2 rounded-lg text-xs transition-all active:scale-95 hover:bg-stake-hover">+ Deposit</button>
         </div>
 
         {/* Games */}
@@ -79,27 +63,17 @@ export default function Lobby() {
             <button
               key={g.id}
               disabled={!g.ready}
-              onClick={() => g.ready && play(g.id)}
+              onClick={() => g.ready && play()}
               className={`w-full bg-stake-card rounded-xl p-3.5 flex items-center gap-3 text-left transition-all border-[1.5px]
-                ${g.ready
-                  ? 'border-transparent hover:border-arcane-purple hover:bg-stake-hover active:scale-[0.98] cursor-pointer'
-                  : 'border-transparent opacity-30 cursor-not-allowed'
-                }`}
+                ${g.ready ? 'border-transparent hover:border-arcane-purple hover:bg-stake-hover active:scale-[0.98] cursor-pointer' : 'border-transparent opacity-30 cursor-not-allowed'}`}
             >
-              <div
-                className="w-11 h-11 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
-                style={{ background: g.color + '18' }}
-              >
-                {g.icon}
-              </div>
+              <div className="w-11 h-11 rounded-lg flex items-center justify-center text-lg flex-shrink-0" style={{ background: g.color + '18' }}>{g.icon}</div>
               <div className="flex-1 min-w-0">
                 <div className="font-bold text-sm flex items-center gap-1.5">
                   {g.name}
-                  {g.ready ? (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-arcane-purple/15 text-arcane-purple uppercase">Live</span>
-                  ) : (
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-stake-border text-stake-gray uppercase">Soon</span>
-                  )}
+                  {g.ready
+                    ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-arcane-purple/15 text-arcane-purple uppercase">Live</span>
+                    : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-stake-border text-stake-gray uppercase">Soon</span>}
                 </div>
                 <div className="text-stake-gray text-[11px] mt-0.5 truncate">{g.desc}</div>
               </div>
@@ -110,7 +84,6 @@ export default function Lobby() {
             </button>
           ))}
         </div>
-
         <div className="text-center text-stake-border text-[10px] mt-6 pb-4">Skill Arena v2.0 · No luck. Just skill.</div>
       </div>
     </div>
