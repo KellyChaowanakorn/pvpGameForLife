@@ -271,12 +271,52 @@ export class EnduranceGame implements GamePlugin {
   }
 }
 
+// ===== MEMORY FLIP (30s) =====
+export class MemoryFlipGame implements GamePlugin {
+  mode = 'memory_flip';
+  private scores: Record<string, number> = {};
+  private inputs: Record<string, PlayerInput[]> = {};
+  private combos: Record<string, number> = {};
+  private duration: number;
+  private seed: number = 0;
+
+  constructor(duration = 30000) { this.duration = duration; }
+
+  generateConfig(): GameConfig {
+    this.seed = Date.now();
+    return { mode: this.mode, duration: this.duration, seed: this.seed, data: {} };
+  }
+
+  processInput(playerId: string, input: PlayerInput): number {
+    if (this.scores[playerId] === undefined) {
+      this.scores[playerId] = 0;
+      this.inputs[playerId] = [];
+      this.combos[playerId] = 0;
+    }
+    this.inputs[playerId].push(input);
+
+    if (input.type === 'memory_match' && input.data) {
+      const combo = input.data.combo || 1;
+      this.combos[playerId] = combo;
+      // More points for consecutive matches
+      const points = combo >= 3 ? 5 : combo >= 2 ? 3 : 2;
+      this.scores[playerId] += points;
+    }
+    return this.scores[playerId];
+  }
+
+  getScore(playerId: string): number { return this.scores[playerId] || 0; }
+  validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= 100; }
+  getMaxScore(): number { return 8 * 5; } // 8 pairs * max 5 points
+}
+
 // ===== FACTORY =====
 export function createGame(mode: string, duration = 30000): GamePlugin {
   switch (mode) {
     case 'target_tap': return new TargetTapGame(duration);
     case 'combo_tap': return new ComboTapGame(duration);
     case 'endurance': return new EnduranceGame(duration);
+    case 'memory_flip': return new MemoryFlipGame(duration);
     default: return new TargetTapGame(duration);
   }
 }

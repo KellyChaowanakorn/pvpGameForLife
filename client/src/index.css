@@ -3,73 +3,90 @@
 @tailwind utilities;
 
 * { -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Inter', sans-serif; background: #0a0a1a; color: #e2e0f0; min-height: 100vh; }
+body {
+  font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+  background: #FFF8F0;
+  color: #3D2914;
+  min-height: 100vh;
+}
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #0a0a1a; }
-::-webkit-scrollbar-thumb { background: #2a2050; border-radius: 4px; }
+::-webkit-scrollbar-track { background: #FFF8F0; }
+::-webkit-scrollbar-thumb { background: #F3E8DE; border-radius: 4px; }
 
-/* Arcane Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
 @keyframes pop {
-  0% { transform: scale(2.5); opacity: 0; }
-  70% { transform: scale(0.95); }
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.15); }
   100% { transform: scale(1); opacity: 1; }
 }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px) rotate(-1deg); }
-  50% { transform: translateX(8px) rotate(1deg); }
-  75% { transform: translateX(-5px); }
+  25% { transform: translateX(-6px) rotate(-2deg); }
+  50% { transform: translateX(6px) rotate(2deg); }
+  75% { transform: translateX(-4px); }
 }
-@keyframes arcaneGlow {
-  0%, 100% { box-shadow: 0 0 15px #7c3aed40, 0 0 30px #7c3aed20; }
-  50% { box-shadow: 0 0 25px #7c3aed60, 0 0 50px #7c3aed30, 0 0 80px #7c3aed10; }
+@keyframes bounce-cute {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
-@keyframes runePulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
-}
-@keyframes fireGlow {
-  0%, 100% { text-shadow: 0 0 10px #ff6b00, 0 0 20px #ff4500; }
-  50% { text-shadow: 0 0 20px #ff6b00, 0 0 40px #ff4500, 0 0 60px #ff2200; }
-}
-@keyframes dangerPulse {
-  0%, 100% { box-shadow: 0 0 15px #ff000050; }
-  50% { box-shadow: 0 0 30px #ff000080, 0 0 60px #ff000040; }
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
 }
 @keyframes floatUp {
   0% { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-40px) scale(1.3); }
+  100% { opacity: 0; transform: translateY(-50px) scale(1.4); }
 }
-@keyframes bossBreath {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.08); }
+@keyframes glow-cute {
+  0%, 100% { box-shadow: 0 4px 15px rgba(255,107,157,0.2); }
+  50% { box-shadow: 0 4px 25px rgba(255,107,157,0.4); }
+}
+@keyframes rainbow-border {
+  0% { border-color: #FF6B9D; }
+  25% { border-color: #4FC3F7; }
+  50% { border-color: #4ADE80; }
+  75% { border-color: #FFD93D; }
+  100% { border-color: #FF6B9D; }
 }
 @keyframes ringExpand {
   0% { transform: scale(0.3); opacity: 1; }
   100% { transform: scale(2); opacity: 0; }
 }
-
-/* Arcane fire text */
-.fire-text {
-  animation: fireGlow 0.5s ease infinite;
-  color: #ff8c00;
+@keyframes bossBreath {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+@keyframes dangerPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(248,113,113,0.3); }
+  50% { box-shadow: 0 0 25px rgba(248,113,113,0.6); }
 }
 
-/* Arcane rune border */
-.rune-border {
-  animation: arcaneGlow 3s ease infinite;
-  border: 1px solid #7c3aed40;
+.cute-card {
+  background: white;
+  border-radius: 20px;
+  border: 2px solid #F3E8DE;
+  box-shadow: 0 4px 15px rgba(61,41,20,0.06);
 }
+.cute-btn {
+  border-radius: 16px;
+  font-weight: 700;
+  transition: all 0.15s;
+  border: none;
+  cursor: pointer;
+}
+.cute-btn:active { transform: scale(0.95); }
 
-/* Float score popup */
 .score-float {
   animation: floatUp 0.6s ease forwards;
   pointer-events: none;
   position: absolute;
   font-weight: 900;
-  font-size: 18px;
+  font-size: 20px;
+}
+.fire-text {
+  color: #FF8C42;
+  text-shadow: 0 0 10px #FF8C4280;
 }

@@ -104,35 +104,35 @@ export default function ComboTapGame() {
       {/* HUD */}
       <div className="flex items-center justify-between px-1 mb-2">
         <div className="text-center">
-          <div className="text-[10px] text-stake-gray uppercase font-semibold">You</div>
-          <div className={`text-2xl font-black tabular-nums ${fireMode ? 'fire-text' : 'text-arcane-purple'}`}>{myScore}</div>
+          <div className="text-[10px] text-cute-gray uppercase font-semibold">You</div>
+          <div className={`text-2xl font-black tabular-nums ${fireMode ? 'fire-text' : 'text-cute-pink'}`}>{myScore}</div>
         </div>
         <div className="text-center">
-          <div className={`text-3xl font-black tabular-nums ${isUrgent ? 'text-danger animate-pulse' : 'text-arcane-purple'}`}>{timeLeft.toFixed(1)}s</div>
-          <div className="text-[10px] text-arcane-purple uppercase font-bold tracking-widest">
+          <div className={`text-3xl font-black tabular-nums ${isUrgent ? 'text-cute-red animate-pulse' : 'text-cute-pink'}`}>{timeLeft.toFixed(1)}s</div>
+          <div className="text-[10px] text-cute-pink uppercase font-bold tracking-widest">
             {fireMode ? '🔥 FIRE MODE' : `PHASE ${phase === 1 ? 'I' : phase === 2 ? 'II' : 'III'}`}
           </div>
         </div>
         <div className="text-center">
-          <div className="text-[10px] text-stake-gray uppercase font-semibold">Opp</div>
-          <div className="text-2xl font-black text-danger tabular-nums">{oppScore}</div>
+          <div className="text-[10px] text-cute-gray uppercase font-semibold">Opp</div>
+          <div className="text-2xl font-black text-cute-red tabular-nums">{oppScore}</div>
         </div>
       </div>
 
       {/* Combo */}
       <div className="text-center mb-1 h-7">
         {combo >= 2 && (
-          <span className={`font-black text-sm ${fireMode ? 'fire-text' : 'text-gold'} animate-bounce inline-block`}>
+          <span className={`font-black text-sm ${fireMode ? 'fire-text' : 'text-cute-gold'} animate-bounce inline-block`}>
             {fireMode ? '🔥🔥🔥' : combo >= 5 ? '🔥🔥' : '🔥'} x{combo}
           </span>
         )}
       </div>
 
       {/* Game Area */}
-      <div className="flex-1 relative rounded-2xl overflow-hidden rune-border flex items-center justify-center"
+      <div className="flex-1 relative rounded-2xl overflow-hidden cute-card flex items-center justify-center"
         style={{ backgroundImage: 'url(/bg-main.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div className="absolute inset-0" style={{ background: fireMode ? 'rgba(26,5,0,0.82)' : 'rgba(10,10,26,0.78)' }} />
-        {pictureUrl && <img src={pictureUrl} alt="" className="absolute bottom-2 right-2 w-12 h-12 rounded-full opacity-50 pointer-events-none z-0 border-2 border-arcane-purple/30" />}
+        <div className="absolute inset-0" style={{ background: fireMode ? 'rgba(255,230,220,0.85)' : 'rgba(255,248,240,0.85)' }} />
+        {pictureUrl && <img src={pictureUrl} alt="" className="absolute bottom-2 right-2 w-12 h-12 rounded-full opacity-50 pointer-events-none z-0 border-2 border-cute-pink/30" />}
 
         {flash === 'correct' && <div className="absolute inset-0 bg-arcane-purple/10 z-10" />}
         {flash === 'wrong' && <div className="absolute inset-0 bg-danger/20 z-10" />}
@@ -165,11 +165,11 @@ export default function ComboTapGame() {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 z-10">
-            <div className="text-stake-gray text-sm animate-pulse">รอสีถัดไป...</div>
+            <div className="text-cute-gray text-sm animate-pulse">รอสีถัดไป...</div>
             {stepIdx === 0 && (
-              <div className="bg-black/60 backdrop-blur-sm rune-border rounded-xl px-4 py-3 text-center max-w-[260px]">
-                <div className="text-arcane-purple text-xs font-bold mb-1">🔥 วิธีเล่น</div>
-                <div className="text-stake-gray text-[11px]">ดูสีตรงกลาง กดปุ่มสีด้านล่างให้ตรง! Combo 10+ = 🔥 Fire Mode!</div>
+              <div className="bg-white/80 backdrop-blur-sm cute-card rounded-xl px-4 py-3 text-center max-w-[260px]">
+                <div className="text-cute-pink text-xs font-bold mb-1">🔥 วิธีเล่น</div>
+                <div className="text-cute-gray text-[11px]">ดูสีตรงกลาง กดปุ่มสีด้านล่างให้ตรง! Combo 10+ = 🔥 Fire Mode!</div>
               </div>
             )}
           </div>

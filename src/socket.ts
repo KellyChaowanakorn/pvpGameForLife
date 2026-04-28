@@ -152,6 +152,8 @@ async function endMatch(io: Server, matchId: string, winner: MatchPlayer | null,
     } else if (winner && loser) {
       const payout = await WalletService.payWinner(winner.dbId, matchId);
       const lw = await WalletService.getWallet(loser.dbId);
+      const platformFeeAmount = (ENTRY_FEE * 2) * (FEE_PERCENT / 100);
+      await WalletService.recordPlatformFee(matchId, platformFeeAmount);
       await MatchService.finishMatch(matchId, winner.dbId, false);
       await MatchService.updateLeaderboard(winner.dbId, match.gameType, 'win', payout.prize);
       await MatchService.updateLeaderboard(loser.dbId, match.gameType, 'loss');

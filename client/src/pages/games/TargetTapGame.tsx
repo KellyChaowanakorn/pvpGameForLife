@@ -97,25 +97,25 @@ export default function TargetTapGame() {
       {/* HUD */}
       <div className="flex items-center justify-between px-1 mb-2">
         <div className="text-center">
-          <div className="text-[10px] text-stake-gray uppercase font-semibold">You</div>
-          <div className="text-2xl font-black text-arcane-purple tabular-nums">{myScore}</div>
+          <div className="text-[10px] text-cute-gray uppercase font-semibold">You</div>
+          <div className="text-2xl font-black text-cute-pink tabular-nums">{myScore}</div>
         </div>
         <div className="text-center">
-          <div className={`text-3xl font-black tabular-nums ${isUrgent ? 'text-danger animate-pulse' : 'text-arcane-purple'}`}>{timeLeft.toFixed(1)}s</div>
+          <div className={`text-3xl font-black tabular-nums ${isUrgent ? 'text-cute-red animate-pulse' : 'text-cute-pink'}`}>{timeLeft.toFixed(1)}s</div>
           <div className="text-[10px] uppercase font-bold tracking-widest" style={{ color: phaseColor }}>{phaseLabel}</div>
         </div>
         <div className="text-center">
-          <div className="text-[10px] text-stake-gray uppercase font-semibold">Opp</div>
-          <div className="text-2xl font-black text-danger tabular-nums">{oppScore}</div>
+          <div className="text-[10px] text-cute-gray uppercase font-semibold">Opp</div>
+          <div className="text-2xl font-black text-cute-red tabular-nums">{oppScore}</div>
         </div>
       </div>
 
       {/* Game Area */}
-      <div className="flex-1 relative rounded-2xl overflow-hidden rune-border" style={{ backgroundImage: 'url(/bg-main.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div className="absolute inset-0" style={{ background: phase === 3 ? 'rgba(20,0,5,0.78)' : 'rgba(10,10,26,0.72)' }} />
+      <div className="flex-1 relative rounded-2xl overflow-hidden cute-card" style={{ backgroundImage: 'url(/bg-main.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="absolute inset-0" style={{ background: phase === 3 ? 'rgba(255,248,240,0.85)' : 'rgba(255,248,240,0.8)' }} />
 
         {/* Player Profile */}
-        {pictureUrl && <img src={pictureUrl} alt="" className="absolute bottom-2 right-2 w-12 h-12 rounded-full opacity-50 pointer-events-none border-2 border-arcane-purple/30 z-30" style={{ filter: 'drop-shadow(0 0 10px #a855f740)' }} />}
+        {pictureUrl && <img src={pictureUrl} alt="" className="absolute bottom-2 right-2 w-12 h-12 rounded-full opacity-50 pointer-events-none border-2 border-cute-pink/30 z-30" style={{ filter: 'drop-shadow(0 0 10px #a855f740)' }} />}
 
         {/* Targets */}
         {visibleTargets.map(target => {
@@ -157,10 +157,10 @@ export default function TargetTapGame() {
         {/* Instructions */}
         {visibleTargets.length === 0 && timeLeft > 28 && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
-            <div className="text-stake-gray text-sm animate-pulse">เป้ากำลังจะมา...</div>
-            <div className="bg-black/60 backdrop-blur-sm rune-border rounded-xl px-4 py-3 text-center max-w-[260px]">
-              <div className="text-arcane-purple text-xs font-bold mb-1">🎯 วิธีเล่น</div>
-              <div className="text-stake-gray text-[11px]">กดเป้าให้เร็ว! ⭐ทอง = +5 · 💀บอส = +10 (กด 3 ครั้ง)</div>
+            <div className="text-cute-gray text-sm animate-pulse">เป้ากำลังจะมา...</div>
+            <div className="bg-white/80 backdrop-blur-sm cute-card rounded-xl px-4 py-3 text-center max-w-[260px]">
+              <div className="text-cute-pink text-xs font-bold mb-1">🎯 วิธีเล่น</div>
+              <div className="text-cute-gray text-[11px]">กดเป้าให้เร็ว! ⭐ทอง = +5 · 💀บอส = +10 (กด 3 ครั้ง)</div>
             </div>
           </div>
         )}

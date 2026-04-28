@@ -3,73 +3,38 @@ import { findMatch } from '../lib/socket';
 
 export default function Result() {
   const { result, resultData, setScreen, gameMode } = useGameStore();
-
   if (!result || !resultData) return null;
-
-  const isWin = result === 'win';
-  const isDraw = result === 'draw';
-
-  const icon = isWin ? '🏆' : isDraw ? '🤝' : '😤';
-  const title = isWin ? 'You win!' : isDraw ? 'Draw!' : 'You lose';
-  const titleColor = isWin ? 'text-arcane-purple' : isDraw ? 'text-gold' : 'text-danger';
-
-  let prizeText = '';
-  let prizeColor = '';
-  if (isWin) {
-    prizeText = `+฿${resultData.prize.toFixed(2)}`;
-    prizeColor = 'text-arcane-purple';
-  } else if (isDraw) {
-    prizeText = `Refund ฿${resultData.refund.toFixed(2)}`;
-    prizeColor = 'text-gold';
-  } else {
-    prizeText = '-฿5.00';
-    prizeColor = 'text-danger';
-  }
+  const isWin = result === 'win', isDraw = result === 'draw';
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[75vh] text-center animate-[fadeIn_0.3s_ease]">
-      {/* Icon */}
-      <div className="text-7xl mb-3 animate-[pop_0.5s_ease]">{icon}</div>
-
-      {/* Title */}
-      <div className={`text-2xl font-black mb-1 ${titleColor}`}>{title}</div>
-
-      {/* Reason */}
+      <div className="text-7xl mb-3 animate-[pop_0.5s_ease]">{isWin ? '🏆' : isDraw ? '🤝' : '😤'}</div>
+      <div className={`text-2xl font-black mb-1 ${isWin ? 'text-cute-mint' : isDraw ? 'text-cute-gold' : 'text-cute-red'}`}>
+        {isWin ? 'คุณชนะ! 🎉' : isDraw ? 'เสมอ!' : 'คุณแพ้...'}
+      </div>
       {resultData.reason === 'opponent_disconnected' && (
-        <div className="text-stake-gray text-xs mb-3">Opponent disconnected</div>
+        <div className="text-cute-gray text-xs mb-3">คู่แข่งหลุดการเชื่อมต่อ</div>
       )}
-
-      {/* Scores */}
-      <div className="bg-stake-card rounded-xl px-7 py-4 flex gap-9 my-4 border border-stake-border">
+      <div className="cute-card px-7 py-4 flex gap-10 my-4">
         <div className="text-center">
-          <div className="text-[11px] text-stake-gray uppercase font-semibold mb-1">You</div>
-          <div className={`text-3xl font-black ${isWin || isDraw ? 'text-arcane-purple' : 'text-danger'}`}>
-            {resultData.yourScore}
-          </div>
+          <div className="text-[11px] text-cute-gray font-semibold mb-1">คุณ</div>
+          <div className={`text-3xl font-black ${isWin || isDraw ? 'text-cute-mint' : 'text-cute-red'}`}>{resultData.yourScore}</div>
         </div>
         <div className="text-center">
-          <div className="text-[11px] text-stake-gray uppercase font-semibold mb-1">Opponent</div>
-          <div className={`text-3xl font-black ${isWin ? 'text-danger' : isDraw ? 'text-arcane-purple' : 'text-arcane-purple'}`}>
-            {resultData.oppScore}
-          </div>
+          <div className="text-[11px] text-cute-gray font-semibold mb-1">คู่แข่ง</div>
+          <div className={`text-3xl font-black ${isWin ? 'text-cute-red' : 'text-cute-mint'}`}>{resultData.oppScore}</div>
         </div>
       </div>
-
-      {/* Prize */}
-      <div className={`text-lg font-extrabold mb-5 ${prizeColor}`}>{prizeText}</div>
-
-      {/* Buttons */}
-      <button
-        onClick={() => findMatch(gameMode)}
-        className="w-full max-w-[280px] bg-arcane-purple text-stake-bg font-extrabold py-3.5 rounded-xl text-sm uppercase tracking-wider mb-2 transition-all active:scale-97"
-      >
-        Play again
+      <div className={`text-lg font-extrabold mb-5 ${isWin ? 'text-cute-mint' : isDraw ? 'text-cute-gold' : 'text-cute-red'}`}>
+        {isWin ? `+฿${resultData.prize.toFixed(2)} 🎉` : isDraw ? `คืน ฿${resultData.refund.toFixed(2)}` : '-฿5.00'}
+      </div>
+      <button onClick={() => findMatch(gameMode)}
+        className="cute-btn w-full max-w-[280px] bg-cute-pink text-white py-3.5 text-sm shadow-lg shadow-cute-pink/20 mb-2">
+        🎮 เล่นอีกครั้ง
       </button>
-      <button
-        onClick={() => setScreen('lobby')}
-        className="w-full max-w-[280px] bg-stake-hover border border-stake-border text-white font-semibold py-3 rounded-xl text-sm transition-all active:scale-97"
-      >
-        Lobby
+      <button onClick={() => setScreen('lobby')}
+        className="cute-btn w-full max-w-[280px] bg-white text-cute-dark border-2 border-cute-border py-3 text-sm">
+        🏠 กลับ Lobby
       </button>
     </div>
   );

@@ -118,29 +118,29 @@ export default function EnduranceGame() {
       {/* HUD */}
       <div className="flex items-center justify-between px-1 mb-2">
         <div className="text-center">
-          <div className="text-[10px] text-stake-gray uppercase font-semibold">You</div>
-          <div className="text-2xl font-black text-arcane-purple tabular-nums">{displayScore}</div>
+          <div className="text-[10px] text-cute-gray uppercase font-semibold">You</div>
+          <div className="text-2xl font-black text-cute-pink tabular-nums">{displayScore}</div>
         </div>
         <div className="text-center">
-          <div className={`text-3xl font-black tabular-nums ${isUrgent ? 'text-danger animate-pulse' : 'text-arcane-purple'}`}>{timeLeft.toFixed(1)}s</div>
-          <div className="text-[10px] text-arcane-purple uppercase font-bold">{bpm} BPM</div>
+          <div className={`text-3xl font-black tabular-nums ${isUrgent ? 'text-cute-red animate-pulse' : 'text-cute-pink'}`}>{timeLeft.toFixed(1)}s</div>
+          <div className="text-[10px] text-cute-pink uppercase font-bold">{bpm} BPM</div>
         </div>
         <div className="text-center">
-          <div className="text-[10px] text-stake-gray uppercase font-semibold">Opp</div>
-          <div className="text-2xl font-black text-danger tabular-nums">{oppScore}</div>
+          <div className="text-[10px] text-cute-gray uppercase font-semibold">Opp</div>
+          <div className="text-2xl font-black text-cute-red tabular-nums">{oppScore}</div>
         </div>
       </div>
 
       {/* Streak + Hit */}
       <div className="flex items-center justify-between px-2 mb-1 h-7">
-        <div>{streak >= 3 && <span className="text-gold font-black text-sm animate-bounce inline-block">⚡ x{streak}</span>}</div>
+        <div>{streak >= 3 && <span className="text-cute-gold font-black text-sm animate-bounce inline-block">⚡ x{streak}</span>}</div>
         <div>
-          {hitResult === 'perfect' && <span className="text-arcane-purple font-black text-base animate-[pop_0.3s_ease]">✨ PERFECT +3</span>}
-          {hitResult === 'danger_perfect' && <span className="text-danger font-black text-base animate-[pop_0.3s_ease]">☠️ PERFECT +8</span>}
-          {hitResult === 'good' && <span className="text-gold font-bold text-sm animate-[pop_0.3s_ease]">GOOD</span>}
-          {hitResult === 'miss' && <span className="text-danger font-bold text-sm animate-[pop_0.3s_ease]">MISS</span>}
+          {hitResult === 'perfect' && <span className="text-cute-pink font-black text-base animate-[pop_0.3s_ease]">✨ PERFECT +3</span>}
+          {hitResult === 'danger_perfect' && <span className="text-cute-red font-black text-base animate-[pop_0.3s_ease]">☠️ PERFECT +8</span>}
+          {hitResult === 'good' && <span className="text-cute-gold font-bold text-sm animate-[pop_0.3s_ease]">GOOD</span>}
+          {hitResult === 'miss' && <span className="text-cute-red font-bold text-sm animate-[pop_0.3s_ease]">MISS</span>}
         </div>
-        <div>{isDanger && <span className="text-danger font-bold text-xs animate-pulse">☠️ DANGER</span>}</div>
+        <div>{isDanger && <span className="text-cute-red font-bold text-xs animate-pulse">☠️ DANGER</span>}</div>
       </div>
 
       {/* Game Area - TAP ZONE */}
@@ -155,10 +155,10 @@ export default function EnduranceGame() {
         }}>
 
         {/* Dark overlay */}
-        <div className="absolute inset-0" style={{ background: isDanger ? 'rgba(20,0,0,0.75)' : 'rgba(10,10,26,0.78)' }} />
+        <div className="absolute inset-0" style={{ background: isDanger ? 'rgba(255,230,230,0.85)' : 'rgba(255,248,240,0.85)' }} />
 
         {/* Player Profile */}
-        {pictureUrl && <img src={pictureUrl} alt="" className="absolute bottom-2 right-2 w-12 h-12 rounded-full opacity-50 pointer-events-none border-2 border-arcane-purple/30 z-30" />}
+        {pictureUrl && <img src={pictureUrl} alt="" className="absolute bottom-2 right-2 w-12 h-12 rounded-full opacity-50 pointer-events-none border-2 border-cute-pink/30 z-30" />}
 
         {/* Outer ring - magic circle style */}
         <div className="absolute rounded-full z-10" style={{
@@ -225,7 +225,7 @@ export default function EnduranceGame() {
 
         {/* Instruction */}
         <div className="absolute bottom-4 left-0 right-0 text-center px-4 z-10">
-          <div className="bg-black/50 backdrop-blur-sm rounded-lg px-3 py-2 inline-block border border-arcane-purple/20">
+          <div className="bg-white/80 backdrop-blur-sm rounded-lg px-3 py-2 inline-block border border-cute-pink/20">
             <div className="text-white text-[11px] font-semibold">⭕ กดตอนวงชิดกัน! · ☠️ Danger = +8</div>
           </div>
         </div>

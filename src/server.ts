@@ -77,6 +77,140 @@ async function start() {
     return { totalUsers: users, totalMatches: matches, live };
   });
 
+  // ===== WALLET APIs =====
+  const { WalletService } = require('./db/wallet');
+  const { verifyToken } = require('./auth');
+
+  // Helper: extract user from JWT
+  const getUserFromToken = async (req: any) => {
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) return null;
+    const decoded = verifyToken(auth.split(' ')[1]);
+    return decoded;
+  };
+
+  // GET /api/wallet/balance
+  fastify.get('/api/wallet/balance', async (req, reply) => {
+    const user = await getUserFromToken(req);
+    if (!user) return reply.code(401).send({ error: 'Unauthorized' });
+    const wallet = await WalletService.getWallet(user.id);
+    return { balance: wallet.balance.toNumber() };
+  });
+
+  // GET /api/wallet/transactions
+  fastify.get('/api/wallet/transactions', async (req, reply) => {
+    const user = await getUserFromToken(req);
+    if (!user) return reply.code(401).send({ error: 'Unauthorized' });
+    const txs = await WalletService.getTransactions(user.id);
+    return { transactions: txs.map((t: any) => ({ id: t.id, type: t.type, amount: t.amount.toNumber(), balanceBefore: t.balanceBefore.toNumber(), balanceAfter: t.balanceAfter.toNumber(), description: t.description, createdAt: t.createdAt })) };
+  });
+
+  // POST /api/wallet/deposit
+  fastify.post('/api/wallet/deposit', async (req, reply) => {
+    const user = await getUserFromToken(req);
+    if (!user) return reply.code(401).send({ error: 'Unauthorized' });
+    const { amount } = req.body as { amount: number };
+    if (!amount || amount < 10 || amount > 50000) return reply.code(400).send({ error: 'Amount must be 10-50000' });
+    const request = await WalletService.createDepositRequest(user.id, amount);
+    return { success: true, requestId: request.id, status: 'pending', message: 'โอนเงินแล้วรอ admin อนุมัติ' };
+  });
+
+  // POST /api/wallet/withdraw
+  fastify.post('/api/wallet/withdraw', async (req, reply) => {
+    const user = await getUserFromToken(req);
+    if (!user) return reply.code(401).send({ error: 'Unauthorized' });
+    const { amount, promptpayId } = req.body as { amount: number; promptpayId?: string };
+    if (!amount || amount < 20) return reply.code(400).send({ error: 'Minimum ฿20' });
+    try {
+      const request = await WalletService.createWithdrawRequest(user.id, amount, promptpayId);
+      return { success: true, requestId: request.id, status: 'pending' };
+    } catch (err: any) {
+      return reply.code(400).send({ error: err.message });
+    }
+  });
+
+  // GET /api/wallet/deposits (user's own requests)
+  fastify.get('/api/wallet/deposits', async (req, reply) => {
+    const user = await getUserFromToken(req);
+    if (!user) return reply.code(401).send({ error: 'Unauthorized' });
+    const deposits = await prisma.depositRequest.findMany({ where: { userId: user.id }, orderBy: { createdAt: 'desc' }, take: 20 });
+    return { deposits: deposits.map((d: any) => ({ id: d.id, amount: d.amount.toNumber(), status: d.status, method: d.method, createdAt: d.createdAt })) };
+  });
+
+  // ===== ADMIN APIs (secret key auth) =====
+  const ADMIN_SECRET = process.env.ADMIN_SECRET || 'admin-secret-change-this';
+
+  const checkAdmin = (req: any, reply: any) => {
+    const key = (req.headers['x-admin-key'] || (req.query as any)?.adminKey) as string;
+    if (key !== ADMIN_SECRET) { reply.code(403).send({ error: 'Forbidden' }); return false; }
+    return true;
+  };
+
+  // GET /api/admin/stats
+  fastify.get('/api/admin/stats', async (req, reply) => {
+    if (!checkAdmin(req, reply)) return;
+    return WalletService.getAdminStats();
+  });
+
+  // GET /api/admin/deposits?status=pending
+  fastify.get('/api/admin/deposits', async (req, reply) => {
+    if (!checkAdmin(req, reply)) return;
+    const { status } = req.query as { status?: string };
+    const where = status ? { status } : {};
+    const deposits = await prisma.depositRequest.findMany({ where, include: { user: { select: { displayName: true, lineUserId: true } } }, orderBy: { createdAt: 'desc' }, take: 50 });
+    return { deposits };
+  });
+
+  // POST /api/admin/deposit/:id/approve
+  fastify.post('/api/admin/deposit/:id/approve', async (req, reply) => {
+    if (!checkAdmin(req, reply)) return;
+    const id = parseInt((req.params as any).id);
+    try { await WalletService.approveDeposit(id); return { success: true }; }
+    catch (err: any) { return reply.code(400).send({ error: err.message }); }
+  });
+
+  // POST /api/admin/deposit/:id/reject
+  fastify.post('/api/admin/deposit/:id/reject', async (req, reply) => {
+    if (!checkAdmin(req, reply)) return;
+    const id = parseInt((req.params as any).id);
+    const { note } = (req.body as any) || {};
+    try { await WalletService.rejectDeposit(id, note); return { success: true }; }
+    catch (err: any) { return reply.code(400).send({ error: err.message }); }
+  });
+
+  // GET /api/admin/withdrawals?status=pending
+  fastify.get('/api/admin/withdrawals', async (req, reply) => {
+    if (!checkAdmin(req, reply)) return;
+    const { status } = req.query as { status?: string };
+    const where = status ? { status } : {};
+    const withdrawals = await prisma.withdrawRequest.findMany({ where, include: { user: { select: { displayName: true } } }, orderBy: { createdAt: 'desc' }, take: 50 });
+    return { withdrawals };
+  });
+
+  // POST /api/admin/withdrawal/:id/approve
+  fastify.post('/api/admin/withdrawal/:id/approve', async (req, reply) => {
+    if (!checkAdmin(req, reply)) return;
+    const id = parseInt((req.params as any).id);
+    try { await WalletService.approveWithdraw(id); return { success: true }; }
+    catch (err: any) { return reply.code(400).send({ error: err.message }); }
+  });
+
+  // POST /api/admin/withdrawal/:id/reject
+  fastify.post('/api/admin/withdrawal/:id/reject', async (req, reply) => {
+    if (!checkAdmin(req, reply)) return;
+    const id = parseInt((req.params as any).id);
+    const { note } = (req.body as any) || {};
+    try { await WalletService.rejectWithdraw(id, note); return { success: true }; }
+    catch (err: any) { return reply.code(400).send({ error: err.message }); }
+  });
+
+  // GET /api/admin/earnings
+  fastify.get('/api/admin/earnings', async (req, reply) => {
+    if (!checkAdmin(req, reply)) return;
+    const { days } = req.query as { days?: string };
+    return WalletService.getPlatformEarnings(parseInt(days || '30'));
+  });
+
   // ===== Serve React (only if build exists) =====
   const clientDist = path.join(__dirname, '..', 'client', 'dist');
   const clientExists = fs.existsSync(clientDist) && fs.existsSync(path.join(clientDist, 'index.html'));

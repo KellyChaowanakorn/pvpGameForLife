@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-export type Screen = 'loading' | 'lobby' | 'modeSelect' | 'queue' | 'vs' | 'countdown' | 'game' | 'result';
-export type GameMode = 'target_tap' | 'combo_tap' | 'endurance';
+export type Screen = 'loading' | 'lobby' | 'modeSelect' | 'queue' | 'vs' | 'countdown' | 'game' | 'result' | 'wallet';
+export type GameMode = 'target_tap' | 'combo_tap' | 'endurance' | 'memory_flip';
 
 interface GameStore {
   // Auth
