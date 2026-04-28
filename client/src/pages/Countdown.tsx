@@ -5,6 +5,8 @@ const TIPS: Record<string, { emoji: string; name: string; tip: string }> = {
   combo_tap: { emoji: '🔥', name: 'Combo Tap', tip: 'ดูสีตรงกลาง กดปุ่มสีให้ตรง!' },
   endurance: { emoji: '💎', name: 'Endurance', tip: 'กดตอนวงชิดกัน! BPM เร็วขึ้นเรื่อยๆ' },
   memory_flip: { emoji: '🧠', name: 'Memory Flip', tip: 'จำตำแหน่งการ์ด เปิดจับคู่ให้เร็ว!' },
+  math_duel: { emoji: '🔢', name: 'Math Duel', tip: 'อ่านโจทย์ กดเลขตอบ กดส่ง! Streak = bonus!' },
+  aim_click: { emoji: '🎯', name: 'Aim Click', tip: 'กดเป้าให้แม่น! Tiny💎 = +5 คะแนน!' },
 };
 
 export default function Countdown() {

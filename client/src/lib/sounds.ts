@@ -53,6 +53,9 @@ const MUSIC_FILES: Record<string, string> = {
   target_tap: '/music-target.mp3',
   combo_tap: '/music-combo.ogg',
   endurance: '/music-endurance.mp3',
+  memory_flip: '/music-combo.ogg',
+  math_duel: '/music-endurance.mp3',
+  aim_click: '/music-target.mp3',
 };
 
 export function startBGMusic(mode: string) {

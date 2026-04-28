@@ -310,6 +310,159 @@ export class MemoryFlipGame implements GamePlugin {
   getMaxScore(): number { return 8 * 5; } // 8 pairs * max 5 points
 }
 
+// ===== MATH DUEL (30s) =====
+interface MathProblem {
+  id: number; a: number; b: number; op: string; answer: number; showAt: number; points: number; difficulty: number;
+}
+
+export class MathDuelGame implements GamePlugin {
+  mode = 'math_duel';
+  private problems: MathProblem[] = [];
+  private scores: Record<string, number> = {};
+  private inputs: Record<string, PlayerInput[]> = {};
+  private solved: Record<string, Set<number>> = {};
+  private streaks: Record<string, number> = {};
+  private duration: number;
+
+  constructor(duration = 30000) { this.duration = duration; }
+
+  generateConfig(): GameConfig {
+    const seed = Date.now();
+    const rng = seededRandom(seed);
+    this.problems = [];
+    let id = 0; let t = 500;
+
+    while (t < this.duration - 1000) {
+      const progress = t / this.duration;
+      const diff = progress < 0.3 ? 1 : progress < 0.6 ? 2 : 3;
+      let a: number, b: number, op: string, answer: number;
+
+      if (diff === 1) {
+        // Easy: addition/subtraction, small numbers
+        a = 1 + Math.floor(rng() * 20); b = 1 + Math.floor(rng() * 20);
+        if (rng() > 0.5) { op = '+'; answer = a + b; } else { op = '-'; if (a < b) [a, b] = [b, a]; answer = a - b; }
+      } else if (diff === 2) {
+        // Medium: multiplication, or bigger add/sub
+        const r = rng();
+        if (r > 0.5) { a = 2 + Math.floor(rng() * 12); b = 2 + Math.floor(rng() * 12); op = '×'; answer = a * b; }
+        else { a = 10 + Math.floor(rng() * 90); b = 10 + Math.floor(rng() * 90); op = rng() > 0.5 ? '+' : '-'; if (op === '-' && a < b) [a, b] = [b, a]; answer = op === '+' ? a + b : a - b; }
+      } else {
+        // Hard: bigger multiply, or tricky
+        const r = rng();
+        if (r > 0.6) { a = 5 + Math.floor(rng() * 15); b = 5 + Math.floor(rng() * 15); op = '×'; answer = a * b; }
+        else if (r > 0.3) { a = 50 + Math.floor(rng() * 150); b = 10 + Math.floor(rng() * 100); op = rng() > 0.5 ? '+' : '-'; if (op === '-' && a < b) [a, b] = [b, a]; answer = op === '+' ? a + b : a - b; }
+        else { a = Math.floor(rng() * 12 + 2) * (Math.floor(rng() * 8) + 2); b = Math.floor(rng() * 8) + 2; op = '÷'; answer = Math.floor(a / b); a = answer * b; }
+      }
+
+      this.problems.push({ id: id++, a, b, op, answer, showAt: t, points: diff, difficulty: diff });
+      t += diff === 1 ? 2500 : diff === 2 ? 3000 : 3500;
+    }
+    return { mode: this.mode, duration: this.duration, seed, data: { problems: this.problems } };
+  }
+
+  processInput(playerId: string, input: PlayerInput): number {
+    if (this.scores[playerId] === undefined) { this.scores[playerId] = 0; this.inputs[playerId] = []; this.solved[playerId] = new Set(); this.streaks[playerId] = 0; }
+    this.inputs[playerId].push(input);
+
+    if (input.type === 'math_answer' && input.data) {
+      const { problemId, answer } = input.data;
+      const problem = this.problems.find(p => p.id === problemId);
+      if (problem && !this.solved[playerId].has(problemId)) {
+        this.solved[playerId].add(problemId);
+        if (answer === problem.answer) {
+          this.streaks[playerId]++;
+          const streak = this.streaks[playerId];
+          let bonus = problem.points;
+          if (streak >= 5) bonus += 3;
+          else if (streak >= 3) bonus += 1;
+          this.scores[playerId] += bonus;
+        } else {
+          this.streaks[playerId] = 0;
+          this.scores[playerId] = Math.max(0, this.scores[playerId] - 1);
+        }
+      }
+    }
+    return this.scores[playerId];
+  }
+
+  getScore(playerId: string): number { return this.scores[playerId] || 0; }
+  validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= this.problems.length * 3; }
+  getMaxScore(): number { return this.problems.reduce((s, p) => s + p.points + 3, 0); }
+}
+
+// ===== AIM CLICK (30s) =====
+interface AimTarget {
+  id: number; x: number; y: number; size: number; appearAt: number; duration: number; points: number;
+  type: 'normal' | 'bonus' | 'tiny' | 'moving';
+  moveAngle?: number; moveSpeed?: number;
+}
+
+export class AimClickGame implements GamePlugin {
+  mode = 'aim_click';
+  private targets: AimTarget[] = [];
+  private scores: Record<string, number> = {};
+  private hits: Record<string, Set<number>> = {};
+  private inputs: Record<string, PlayerInput[]> = {};
+  private duration: number;
+
+  constructor(duration = 30000) { this.duration = duration; }
+
+  generateConfig(): GameConfig {
+    const seed = Date.now();
+    const rng = seededRandom(seed);
+    this.targets = [];
+    let id = 0;
+
+    for (let t = 400; t < this.duration - 500; t += 300 + Math.floor(rng() * 250)) {
+      const progress = t / this.duration;
+      const r = rng();
+      let type: 'normal' | 'bonus' | 'tiny' | 'moving' = 'normal';
+      let size = Math.max(5, 12 - progress * 6);
+      let points = 1;
+      let moveAngle, moveSpeed;
+
+      if (r > 0.92 && progress > 0.3) {
+        type = 'tiny'; size = 3; points = 5;
+      } else if (r > 0.82 && progress > 0.2) {
+        type = 'bonus'; size = 10; points = 3;
+      } else if (r > 0.7 && progress > 0.4) {
+        type = 'moving'; size = 8; points = 2;
+        moveAngle = rng() * Math.PI * 2;
+        moveSpeed = 5 + progress * 15;
+      } else {
+        points = progress > 0.6 ? 2 : 1;
+      }
+
+      this.targets.push({
+        id: id++, x: 8 + rng() * 84, y: 8 + rng() * 74,
+        size, appearAt: t,
+        duration: type === 'tiny' ? 800 : type === 'moving' ? 2000 : Math.max(700, 1500 - progress * 700),
+        points, type, moveAngle, moveSpeed,
+      });
+    }
+    return { mode: this.mode, duration: this.duration, seed, data: { targets: this.targets } };
+  }
+
+  processInput(playerId: string, input: PlayerInput): number {
+    if (!this.scores[playerId]) { this.scores[playerId] = 0; this.hits[playerId] = new Set(); this.inputs[playerId] = []; }
+    this.inputs[playerId].push(input);
+
+    if (input.type === 'aim_click' && input.data) {
+      const { targetId } = input.data;
+      const target = this.targets.find(t => t.id === targetId);
+      if (target && !this.hits[playerId].has(targetId)) {
+        this.hits[playerId].add(targetId);
+        this.scores[playerId] += target.points;
+      }
+    }
+    return this.scores[playerId];
+  }
+
+  getScore(playerId: string): number { return this.scores[playerId] || 0; }
+  validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= this.targets.length * 3; }
+  getMaxScore(): number { return this.targets.reduce((s, t) => s + t.points, 0); }
+}
+
 // ===== FACTORY =====
 export function createGame(mode: string, duration = 30000): GamePlugin {
   switch (mode) {
@@ -317,6 +470,8 @@ export function createGame(mode: string, duration = 30000): GamePlugin {
     case 'combo_tap': return new ComboTapGame(duration);
     case 'endurance': return new EnduranceGame(duration);
     case 'memory_flip': return new MemoryFlipGame(duration);
+    case 'math_duel': return new MathDuelGame(duration);
+    case 'aim_click': return new AimClickGame(duration);
     default: return new TargetTapGame(duration);
   }
 }

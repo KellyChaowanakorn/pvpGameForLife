@@ -7,8 +7,10 @@ const TAP_MODES = [
   { id: 'endurance' as GameMode, name: 'Endurance', emoji: '💎', desc: 'กดจังหวะให้ตรงวง!', detail: 'Perfect +3 · ☠️ Danger +8 · BPM เร็วขึ้น', color: '#4FC3F7' },
 ];
 
-const OTHER_GAMES: Record<string, { name: string; emoji: string; desc: string; color: string }> = {
-  memory_flip: { name: 'Memory Flip', emoji: '🧠', desc: 'เปิดการ์ดจับคู่ ใครจับคู่ได้เร็วกว่าชนะ!', color: '#A855F7' },
+const OTHER_GAMES: Record<string, { name: string; emoji: string; desc: string; howTo: string; color: string }> = {
+  memory_flip: { name: 'Memory Flip', emoji: '🧠', desc: 'เปิดการ์ดจับคู่ ใครจับคู่ได้เร็วกว่าชนะ!', howTo: 'จำตำแหน่งการ์ด → เปิดจับคู่ให้เร็วที่สุด → Combo = คะแนน x5!', color: '#A855F7' },
+  math_duel: { name: 'Math Duel', emoji: '🔢', desc: 'โจทย์เลข ใครตอบถูกเร็วกว่าชนะ!', howTo: 'อ่านโจทย์ → กดเลขตอบ → กดส่ง! Streak 5+ = bonus +3!', color: '#4FC3F7' },
+  aim_click: { name: 'Aim Click', emoji: '🎯', desc: 'เป้าสุ่มขึ้น ใครคลิกแม่นกว่าชนะ!', howTo: 'กดเป้าให้ตรง! 💎Tiny +5 · ⭐Bonus +3 · 🦋Moving +2', color: '#FF8C42' },
 };
 
 export default function ModeSelect() {
@@ -31,7 +33,7 @@ export default function ModeSelect() {
           <div className="text-cute-gray text-sm mb-4">{otherGame.desc}</div>
           <div className="cute-card p-3 mb-4 bg-cute-soft">
             <div className="text-xs text-cute-dark font-semibold">📌 วิธีเล่น</div>
-            <div className="text-[11px] text-cute-gray mt-1">จำตำแหน่งการ์ด → เปิดจับคู่ให้เร็วที่สุด → ใครจับคู่ครบก่อนชนะ!</div>
+            <div className="text-[11px] text-cute-gray mt-1">{otherGame.howTo}</div>
           </div>
           <button onClick={() => select(gameMode)}
             className="cute-btn w-full py-4 text-white font-bold text-base shadow-lg" style={{ background: otherGame.color, boxShadow: `0 8px 20px ${otherGame.color}40` }}>

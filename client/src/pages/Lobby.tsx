@@ -3,8 +3,8 @@ import { useGameStore } from '../lib/store';
 const GAMES = [
   { id: 'tap_battle', name: '⚡ Tap Speed', desc: '3 โหมด: Target, Combo, Endurance', color: '#FF6B9D', emoji: '⚡', ready: true },
   { id: 'memory_flip', name: '🧠 Memory Flip', desc: 'เปิดการ์ดจับคู่แข่งกัน', color: '#A855F7', emoji: '🧠', ready: true },
-  { id: 'math_duel', name: '🔢 Math Duel', desc: 'โจทย์คณิตศาสตร์ ใครตอบก่อนชนะ', color: '#4FC3F7', emoji: '🔢', ready: false },
-  { id: 'aim_click', name: '🎯 Aim Click', desc: 'คลิกเป้าให้แม่นที่สุด', color: '#FF8C42', emoji: '🎯', ready: false },
+  { id: 'math_duel', name: '🔢 Math Duel', desc: 'โจทย์คณิตศาสตร์ ใครตอบก่อนชนะ', color: '#4FC3F7', emoji: '🔢', ready: true },
+  { id: 'aim_click', name: '🎯 Aim Click', desc: 'คลิกเป้าให้แม่นที่สุด', color: '#FF8C42', emoji: '🎯', ready: true },
   { id: 'puzzle_rush', name: '🧩 Puzzle Rush', desc: 'แก้ puzzle แข่งเวลา', color: '#4ADE80', emoji: '🧩', ready: false },
   { id: 'strategy_card', name: '⚔️ Strategy Card', desc: 'เลือกการ์ดสู้กัน', color: '#F87171', emoji: '⚔️', ready: false },
   { id: 'reaction_dodge', name: '🏃 Reaction Dodge', desc: 'หลบ obstacle ใครอยู่นานกว่าชนะ', color: '#FFD93D', emoji: '🏃', ready: false },
@@ -54,7 +54,7 @@ export default function Lobby() {
           <button key={g.id} disabled={!g.ready}
             onClick={() => {
               if (g.id === 'tap_battle') setScreen('modeSelect');
-              else if (g.id === 'memory_flip') { setGameMode('memory_flip' as any); setScreen('modeSelect'); }
+              else if (g.ready) { setGameMode(g.id as any); setScreen('modeSelect'); }
             }}
             className={`cute-card p-4 flex items-center gap-3 text-left transition-all
               ${g.ready ? 'hover:border-cute-pink active:scale-[0.98]' : 'opacity-40 cursor-not-allowed'}`}>
