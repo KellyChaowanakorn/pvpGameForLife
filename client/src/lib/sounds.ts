@@ -55,7 +55,7 @@ const MUSIC_FILES: Record<string, string> = {
   endurance: '/music-endurance.mp3',
   memory_flip: '/music-combo.ogg',
   math_duel: '/music-endurance.mp3',
-  aim_click: '/music-target.mp3',
+  dart_aim: '/music-target.mp3',
 };
 
 export function startBGMusic(mode: string) {

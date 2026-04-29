@@ -10,7 +10,7 @@ const TAP_MODES = [
 const OTHER_GAMES: Record<string, { name: string; emoji: string; desc: string; howTo: string; color: string }> = {
   memory_flip: { name: 'Memory Flip', emoji: '🧠', desc: 'เปิดการ์ดจับคู่ ใครจับคู่ได้เร็วกว่าชนะ!', howTo: 'จำตำแหน่งการ์ด → เปิดจับคู่ให้เร็วที่สุด → Combo = คะแนน x5!', color: '#A855F7' },
   math_duel: { name: 'Math Duel', emoji: '🔢', desc: 'โจทย์เลข ใครตอบถูกเร็วกว่าชนะ!', howTo: 'อ่านโจทย์ → กดเลขตอบ → กดส่ง! Streak 5+ = bonus +3!', color: '#4FC3F7' },
-  aim_click: { name: 'Aim Click', emoji: '🎯', desc: 'เป้าสุ่มขึ้น ใครคลิกแม่นกว่าชนะ!', howTo: 'กดเป้าให้ตรง! 💎Tiny +5 · ⭐Bonus +3 · 🦋Moving +2', color: '#FF8C42' },
+  dart_aim: { name: 'Dart Aim', emoji: '🏹', desc: 'ดึงธนูแล้วปล่อย ยิงเป้าให้แม่น!', howTo: 'ลากนิ้วลง (ดึงธนู) แล้วปล่อย! ยิ่งดึงแรง ยิ่งแม่น · Bullseye💎 = +10!', color: '#FF8C42' },
 };
 
 export default function ModeSelect() {

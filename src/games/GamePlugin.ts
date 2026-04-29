@@ -390,18 +390,10 @@ export class MathDuelGame implements GamePlugin {
   getMaxScore(): number { return this.problems.reduce((s, p) => s + p.points + 3, 0); }
 }
 
-// ===== AIM CLICK (30s) =====
-interface AimTarget {
-  id: number; x: number; y: number; size: number; appearAt: number; duration: number; points: number;
-  type: 'normal' | 'bonus' | 'tiny' | 'moving';
-  moveAngle?: number; moveSpeed?: number;
-}
-
-export class AimClickGame implements GamePlugin {
-  mode = 'aim_click';
-  private targets: AimTarget[] = [];
+// ===== DART AIM (30s) =====
+export class DartAimGame implements GamePlugin {
+  mode = 'dart_aim';
   private scores: Record<string, number> = {};
-  private hits: Record<string, Set<number>> = {};
   private inputs: Record<string, PlayerInput[]> = {};
   private duration: number;
 
@@ -409,58 +401,25 @@ export class AimClickGame implements GamePlugin {
 
   generateConfig(): GameConfig {
     const seed = Date.now();
-    const rng = seededRandom(seed);
-    this.targets = [];
-    let id = 0;
-
-    for (let t = 400; t < this.duration - 500; t += 300 + Math.floor(rng() * 250)) {
-      const progress = t / this.duration;
-      const r = rng();
-      let type: 'normal' | 'bonus' | 'tiny' | 'moving' = 'normal';
-      let size = Math.max(5, 12 - progress * 6);
-      let points = 1;
-      let moveAngle, moveSpeed;
-
-      if (r > 0.92 && progress > 0.3) {
-        type = 'tiny'; size = 3; points = 5;
-      } else if (r > 0.82 && progress > 0.2) {
-        type = 'bonus'; size = 10; points = 3;
-      } else if (r > 0.7 && progress > 0.4) {
-        type = 'moving'; size = 8; points = 2;
-        moveAngle = rng() * Math.PI * 2;
-        moveSpeed = 5 + progress * 15;
-      } else {
-        points = progress > 0.6 ? 2 : 1;
-      }
-
-      this.targets.push({
-        id: id++, x: 8 + rng() * 84, y: 8 + rng() * 74,
-        size, appearAt: t,
-        duration: type === 'tiny' ? 800 : type === 'moving' ? 2000 : Math.max(700, 1500 - progress * 700),
-        points, type, moveAngle, moveSpeed,
-      });
-    }
-    return { mode: this.mode, duration: this.duration, seed, data: { targets: this.targets } };
+    return { mode: this.mode, duration: this.duration, seed, data: {} };
   }
 
   processInput(playerId: string, input: PlayerInput): number {
-    if (!this.scores[playerId]) { this.scores[playerId] = 0; this.hits[playerId] = new Set(); this.inputs[playerId] = []; }
+    if (!this.scores[playerId]) { this.scores[playerId] = 0; this.inputs[playerId] = []; }
     this.inputs[playerId].push(input);
 
-    if (input.type === 'aim_click' && input.data) {
-      const { targetId } = input.data;
-      const target = this.targets.find(t => t.id === targetId);
-      if (target && !this.hits[playerId].has(targetId)) {
-        this.hits[playerId].add(targetId);
-        this.scores[playerId] += target.points;
+    if (input.type === 'dart_throw' && input.data) {
+      const points = Math.min(input.data.points || 0, 10); // max 10 per throw
+      if (points > 0) {
+        this.scores[playerId] += points;
       }
     }
     return this.scores[playerId];
   }
 
   getScore(playerId: string): number { return this.scores[playerId] || 0; }
-  validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= this.targets.length * 3; }
-  getMaxScore(): number { return this.targets.reduce((s, t) => s + t.points, 0); }
+  validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= 100; }
+  getMaxScore(): number { return 100; }
 }
 
 // ===== FACTORY =====
@@ -471,7 +430,7 @@ export function createGame(mode: string, duration = 30000): GamePlugin {
     case 'endurance': return new EnduranceGame(duration);
     case 'memory_flip': return new MemoryFlipGame(duration);
     case 'math_duel': return new MathDuelGame(duration);
-    case 'aim_click': return new AimClickGame(duration);
+    case 'dart_aim': return new DartAimGame(duration);
     default: return new TargetTapGame(duration);
   }
 }
