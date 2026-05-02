@@ -4,7 +4,7 @@ const GAMES = [
   { id: 'tap_battle', name: '⚡ Tap Speed', desc: '3 โหมด: Target, Combo, Endurance', color: '#FF6B9D', emoji: '⚡', ready: true },
   { id: 'memory_flip', name: '🧠 Memory Flip', desc: 'เปิดการ์ดจับคู่แข่งกัน', color: '#A855F7', emoji: '🧠', ready: true },
   { id: 'math_duel', name: '🔢 Math Duel', desc: 'โจทย์คณิตศาสตร์ ใครตอบก่อนชนะ', color: '#4FC3F7', emoji: '🔢', ready: true },
-  { id: 'dart_aim', name: '🏹 Dart Aim', desc: 'ดึงธนูแล้วปล่อย ยิงเป้าให้แม่น!', color: '#FF8C42', emoji: '🏹', ready: true },
+  { id: 'archer_battle', name: '🏹 Archer Battle', desc: 'ผลัดยิงธนูใส่กัน 3 หัวใจใครหมดก่อนแพ้!', color: '#FF8C42', emoji: '🏹', ready: true },
   { id: 'puzzle_rush', name: '🧩 Puzzle Rush', desc: 'แก้ puzzle แข่งเวลา', color: '#4ADE80', emoji: '🧩', ready: false },
   { id: 'strategy_card', name: '⚔️ Strategy Card', desc: 'เลือกการ์ดสู้กัน', color: '#F87171', emoji: '⚔️', ready: false },
   { id: 'reaction_dodge', name: '🏃 Reaction Dodge', desc: 'หลบ obstacle ใครอยู่นานกว่าชนะ', color: '#FFD93D', emoji: '🏃', ready: false },

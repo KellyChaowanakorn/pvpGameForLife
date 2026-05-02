@@ -10,15 +10,13 @@ const TAP_MODES = [
 const OTHER_GAMES: Record<string, { name: string; emoji: string; desc: string; howTo: string; color: string }> = {
   memory_flip: { name: 'Memory Flip', emoji: '🧠', desc: 'เปิดการ์ดจับคู่ ใครจับคู่ได้เร็วกว่าชนะ!', howTo: 'จำตำแหน่งการ์ด → เปิดจับคู่ให้เร็วที่สุด → Combo = คะแนน x5!', color: '#A855F7' },
   math_duel: { name: 'Math Duel', emoji: '🔢', desc: 'โจทย์เลข ใครตอบถูกเร็วกว่าชนะ!', howTo: 'อ่านโจทย์ → กดเลขตอบ → กดส่ง! Streak 5+ = bonus +3!', color: '#4FC3F7' },
-  dart_aim: { name: 'Dart Aim', emoji: '🏹', desc: 'ดึงธนูแล้วปล่อย ยิงเป้าให้แม่น!', howTo: 'ลากนิ้วลง (ดึงธนู) แล้วปล่อย! ยิ่งดึงแรง ยิ่งแม่น · Bullseye💎 = +10!', color: '#FF8C42' },
+  archer_battle: { name: 'Archer Battle', emoji: '🏹', desc: 'ผลัดยิงธนูใส่กัน! 3 หัวใจ ใครหมดก่อนแพ้!', howTo: 'เลือกมุม → ล็อค → power bar วิ่ง → กดยิงตอนพลังพอดี!', color: '#FF8C42' },
 };
 
 export default function ModeSelect() {
   const { setScreen, setGameMode, gameMode } = useGameStore();
-
   const select = (mode: GameMode) => { setGameMode(mode); findMatch(mode); };
 
-  // Check if coming from a non-tap game
   const otherGame = OTHER_GAMES[gameMode];
   if (otherGame) {
     return (
@@ -58,9 +56,7 @@ export default function ModeSelect() {
           <button key={mode.id} onClick={() => select(mode.id)}
             className="cute-card p-5 text-left transition-all hover:border-cute-pink active:scale-[0.98] relative overflow-hidden">
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style={{ background: mode.color + '18' }}>
-                {mode.emoji}
-              </div>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style={{ background: mode.color + '18' }}>{mode.emoji}</div>
               <div className="flex-1">
                 <div className="font-bold text-base text-cute-dark mb-1">{mode.name}</div>
                 <div className="text-cute-dark/70 text-sm mb-1">{mode.desc}</div>

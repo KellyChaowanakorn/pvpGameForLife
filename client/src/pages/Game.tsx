@@ -4,7 +4,7 @@ import ComboTapGame from './games/ComboTapGame';
 import EnduranceGame from './games/EnduranceGame';
 import MemoryFlipGame from './games/MemoryFlipGame';
 import MathDuelGame from './games/MathDuelGame';
-import DartAimGame from './games/DartAimGame';
+import ArcherBattleGame from './games/ArcherBattleGame';
 
 export default function Game() {
   const mode = useGameStore((s) => s.gameMode);
@@ -14,7 +14,7 @@ export default function Game() {
     case 'endurance': return <EnduranceGame />;
     case 'memory_flip': return <MemoryFlipGame />;
     case 'math_duel': return <MathDuelGame />;
-    case 'dart_aim': return <DartAimGame />;
+    case 'archer_battle': return <ArcherBattleGame />;
     default: return <TargetTapGame />;
   }
 }

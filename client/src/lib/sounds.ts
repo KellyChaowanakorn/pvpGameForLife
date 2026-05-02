@@ -19,17 +19,14 @@ function tone(freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.
     const ctx = getCtx();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = type;
-    osc.frequency.value = freq;
+    osc.type = type; osc.frequency.value = freq;
     gain.gain.setValueAtTime(vol, ctx.currentTime + delay);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
     osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(ctx.currentTime + delay);
-    osc.stop(ctx.currentTime + delay + dur);
+    osc.start(ctx.currentTime + delay); osc.stop(ctx.currentTime + delay + dur);
   } catch {}
 }
 
-// === SFX ===
 export function playTap() { tone(900, 0.06, 'square', 0.1); tone(1400, 0.04, 'sine', 0.08, 0.02); }
 export function playHit() { tone(1200, 0.08, 'sine', 0.18); tone(1800, 0.06, 'sine', 0.12, 0.04); tone(2200, 0.04, 'sine', 0.08, 0.07); }
 export function playMiss() { tone(180, 0.2, 'sawtooth', 0.08); tone(120, 0.15, 'square', 0.05, 0.1); }
@@ -48,14 +45,13 @@ export function playGo() { tone(700, 0.08, 'sine', 0.25); tone(900, 0.08, 'sine'
 export function playWin() { [523, 659, 784, 1047, 1319].forEach((f, i) => { tone(f, 0.25, 'sine', 0.15, i * 0.12); tone(f * 0.5, 0.3, 'triangle', 0.08, i * 0.12); }); }
 export function playLose() { tone(400, 0.3, 'sawtooth', 0.08); tone(300, 0.3, 'sawtooth', 0.06, 0.2); tone(200, 0.4, 'sawtooth', 0.04, 0.4); }
 
-// === BACKGROUND MUSIC (real files) ===
 const MUSIC_FILES: Record<string, string> = {
   target_tap: '/music-target.mp3',
   combo_tap: '/music-combo.ogg',
   endurance: '/music-endurance.mp3',
   memory_flip: '/music-combo.ogg',
   math_duel: '/music-endurance.mp3',
-  dart_aim: '/music-target.mp3',
+  archer_battle: '/music-target.mp3',
 };
 
 export function startBGMusic(mode: string) {
@@ -71,9 +67,5 @@ export function startBGMusic(mode: string) {
 }
 
 export function stopBGMusic() {
-  if (bgMusic) {
-    bgMusic.pause();
-    bgMusic.currentTime = 0;
-    bgMusic = null;
-  }
+  if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; bgMusic = null; }
 }

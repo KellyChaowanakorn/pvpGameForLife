@@ -6,7 +6,7 @@ const TIPS: Record<string, { emoji: string; name: string; tip: string }> = {
   endurance: { emoji: '💎', name: 'Endurance', tip: 'กดตอนวงชิดกัน! BPM เร็วขึ้นเรื่อยๆ' },
   memory_flip: { emoji: '🧠', name: 'Memory Flip', tip: 'จำตำแหน่งการ์ด เปิดจับคู่ให้เร็ว!' },
   math_duel: { emoji: '🔢', name: 'Math Duel', tip: 'อ่านโจทย์ กดเลขตอบ กดส่ง! Streak = bonus!' },
-  dart_aim: { emoji: '🏹', name: 'Dart Aim', tip: 'ลากนิ้วลงแล้วปล่อย! ยิ่งดึงแรง ยิ่งแม่น!' },
+  archer_battle: { emoji: '🏹', name: 'Archer Battle', tip: 'เลือกมุม → ตั้งพลัง → ยิง! ผลัดกันคนละที!' },
 };
 
 export default function Countdown() {
