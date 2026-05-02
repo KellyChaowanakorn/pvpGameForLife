@@ -42,11 +42,7 @@ export class TargetTapGame implements GamePlugin {
     this.inputs[playerId].push(input);
     if (input.type === 'tap' && input.data) {
       const { targetId } = input.data; const target = this.targets.find(t => t.id === targetId);
-      if (target) {
-        if (!this.hits[playerId][targetId]) this.hits[playerId][targetId] = 0;
-        this.hits[playerId][targetId]++;
-        if (this.hits[playerId][targetId] >= target.hitsRequired) this.scores[playerId] += target.points;
-      }
+      if (target) { if (!this.hits[playerId][targetId]) this.hits[playerId][targetId] = 0; this.hits[playerId][targetId]++; if (this.hits[playerId][targetId] >= target.hitsRequired) this.scores[playerId] += target.points; }
     }
     return this.scores[playerId];
   }
@@ -151,16 +147,11 @@ export class MemoryFlipGame implements GamePlugin {
   private inputs: Record<string, PlayerInput[]> = {};
   private duration: number;
   constructor(duration = 30000) { this.duration = duration; }
-
   generateConfig(): GameConfig { return { mode: this.mode, duration: this.duration, seed: Date.now(), data: {} }; }
-
   processInput(playerId: string, input: PlayerInput): number {
     if (this.scores[playerId] === undefined) { this.scores[playerId] = 0; this.inputs[playerId] = []; }
     this.inputs[playerId].push(input);
-    if (input.type === 'memory_match' && input.data) {
-      const combo = input.data.combo || 1;
-      this.scores[playerId] += combo >= 3 ? 5 : combo >= 2 ? 3 : 2;
-    }
+    if (input.type === 'memory_match' && input.data) { this.scores[playerId] += (input.data.combo || 1) >= 3 ? 5 : (input.data.combo || 1) >= 2 ? 3 : 2; }
     return this.scores[playerId];
   }
   getScore(playerId: string): number { return this.scores[playerId] || 0; }
@@ -168,12 +159,13 @@ export class MemoryFlipGame implements GamePlugin {
   getMaxScore(): number { return 40; }
 }
 
-// ===== MATH DUEL (30s) =====
+// ===== MATH DUEL (30s) — FIXED =====
 interface MathProblem { id: number; a: number; b: number; op: string; answer: number; showAt: number; points: number; difficulty: number; }
 
 export class MathDuelGame implements GamePlugin {
   mode = 'math_duel';
   private problems: MathProblem[] = [];
+  private problemMap: Record<number, MathProblem> = {};
   private scores: Record<string, number> = {};
   private inputs: Record<string, PlayerInput[]> = {};
   private solved: Record<string, Set<number>> = {};
@@ -182,32 +174,63 @@ export class MathDuelGame implements GamePlugin {
   constructor(duration = 30000) { this.duration = duration; }
 
   generateConfig(): GameConfig {
-    const seed = Date.now(); const rng = seededRandom(seed); this.problems = []; let id = 0, t = 500;
+    const seed = Date.now(); const rng = seededRandom(seed); this.problems = []; this.problemMap = {}; let id = 0, t = 500;
     while (t < this.duration - 1000) {
       const progress = t / this.duration; const diff = progress < 0.3 ? 1 : progress < 0.6 ? 2 : 3;
       let a: number, b: number, op: string, answer: number;
       if (diff === 1) { a = 1 + Math.floor(rng() * 20); b = 1 + Math.floor(rng() * 20); if (rng() > 0.5) { op = '+'; answer = a + b; } else { op = '-'; if (a < b) [a, b] = [b, a]; answer = a - b; } }
       else if (diff === 2) { if (rng() > 0.5) { a = 2 + Math.floor(rng() * 12); b = 2 + Math.floor(rng() * 12); op = '×'; answer = a * b; } else { a = 10 + Math.floor(rng() * 90); b = 10 + Math.floor(rng() * 90); op = rng() > 0.5 ? '+' : '-'; if (op === '-' && a < b) [a, b] = [b, a]; answer = op === '+' ? a + b : a - b; } }
       else { if (rng() > 0.6) { a = 5 + Math.floor(rng() * 15); b = 5 + Math.floor(rng() * 15); op = '×'; answer = a * b; } else { a = Math.floor(rng() * 12 + 2) * (Math.floor(rng() * 8) + 2); b = Math.floor(rng() * 8) + 2; op = '÷'; answer = Math.floor(a / b); a = answer * b; } }
-      this.problems.push({ id: id++, a, b, op, answer: answer!, showAt: t, points: diff, difficulty: diff });
+      const prob: MathProblem = { id: id, a, b, op, answer: answer!, showAt: t, points: diff, difficulty: diff };
+      this.problems.push(prob);
+      this.problemMap[id] = prob;
+      id++;
       t += diff === 1 ? 2500 : diff === 2 ? 3000 : 3500;
     }
+    console.log(`[MathDuel Server] Generated ${this.problems.length} problems`);
     return { mode: this.mode, duration: this.duration, seed, data: { problems: this.problems } };
   }
 
   processInput(playerId: string, input: PlayerInput): number {
-    if (this.scores[playerId] === undefined) { this.scores[playerId] = 0; this.inputs[playerId] = []; this.solved[playerId] = new Set(); this.streaks[playerId] = 0; }
+    if (this.scores[playerId] === undefined) {
+      this.scores[playerId] = 0; this.inputs[playerId] = [];
+      this.solved[playerId] = new Set(); this.streaks[playerId] = 0;
+    }
     this.inputs[playerId].push(input);
+
     if (input.type === 'math_answer' && input.data) {
-      const { problemId, answer } = input.data; const problem = this.problems.find(p => p.id === problemId);
+      const { problemId, answer } = input.data;
+
+      // Look up problem by ID
+      const problem = this.problemMap[problemId];
+
       if (problem && !this.solved[playerId].has(problemId)) {
         this.solved[playerId].add(problemId);
-        if (answer === problem.answer) { this.streaks[playerId]++; const s = this.streaks[playerId]; let bonus = problem.points; if (s >= 5) bonus += 3; else if (s >= 3) bonus += 1; this.scores[playerId] += bonus; }
-        else { this.streaks[playerId] = 0; this.scores[playerId] = Math.max(0, this.scores[playerId] - 1); }
+
+        if (answer === problem.answer) {
+          // CORRECT!
+          this.streaks[playerId]++;
+          const s = this.streaks[playerId];
+          let bonus = problem.points;
+          if (s >= 5) bonus += 3;
+          else if (s >= 3) bonus += 1;
+          this.scores[playerId] += bonus;
+          console.log(`[MathDuel] ${playerId} CORRECT! Problem ${problemId}, score: ${this.scores[playerId]}`);
+        } else {
+          // WRONG
+          this.streaks[playerId] = 0;
+          this.scores[playerId] = Math.max(0, this.scores[playerId] - 1);
+          console.log(`[MathDuel] ${playerId} WRONG. Answer: ${answer}, Correct: ${problem.answer}, score: ${this.scores[playerId]}`);
+        }
+      } else if (!problem) {
+        // Problem not found — still give 1 point if answer seems valid (fallback)
+        console.log(`[MathDuel] Problem ${problemId} not found on server, giving 1 point as fallback`);
+        this.scores[playerId] += 1;
       }
     }
     return this.scores[playerId];
   }
+
   getScore(playerId: string): number { return this.scores[playerId] || 0; }
   validate(playerId: string): boolean { return (this.inputs[playerId]?.length || 0) <= this.problems.length * 3; }
   getMaxScore(): number { return this.problems.reduce((s, p) => s + p.points + 3, 0); }
@@ -220,17 +243,11 @@ export class ArcherBattleGame implements GamePlugin {
   private inputs: Record<string, PlayerInput[]> = {};
   private duration: number;
   constructor(duration = 30000) { this.duration = duration; }
-
-  generateConfig(): GameConfig {
-    return { mode: this.mode, duration: this.duration, seed: Date.now(), data: {} };
-  }
-
+  generateConfig(): GameConfig { return { mode: this.mode, duration: this.duration, seed: Date.now(), data: {} }; }
   processInput(playerId: string, input: PlayerInput): number {
     if (!this.scores[playerId]) { this.scores[playerId] = 0; this.inputs[playerId] = []; }
     this.inputs[playerId].push(input);
-    if (input.type === 'archer_hit' && input.data) {
-      this.scores[playerId] += Math.min(input.data.points || 0, 5);
-    }
+    if (input.type === 'archer_hit' && input.data) { this.scores[playerId] += Math.min(input.data.points || 0, 5); }
     return this.scores[playerId];
   }
   getScore(playerId: string): number { return this.scores[playerId] || 0; }

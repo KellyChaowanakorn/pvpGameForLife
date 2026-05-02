@@ -24,11 +24,18 @@ export default function MathDuelGame() {
   const problemsRef = useRef<Problem[]>([]);
   const startRef = useRef(Date.now());
   const floatId = useRef(0);
+  const matchIdRef = useRef(matchId);
+
+  // Keep matchId ref updated
+  useEffect(() => { matchIdRef.current = matchId; }, [matchId]);
 
   useEffect(() => {
-    if (gameConfig?.data?.problems) {
+    if (gameConfig?.data?.problems && gameConfig.data.problems.length > 0) {
       problemsRef.current = gameConfig.data.problems;
+      console.log('[MathDuel] Got server problems:', gameConfig.data.problems.length);
     } else {
+      // Fallback — generate locally
+      console.log('[MathDuel] No server config, generating locally');
       const probs: Problem[] = []; let t = 500, id = 0;
       while (t < 30000 - 1000) {
         const p = t / 30000;
@@ -51,12 +58,13 @@ export default function MathDuelGame() {
     startRef.current = Date.now();
   }, [gameConfig]);
 
+  // Show problems based on elapsed time
   useEffect(() => {
     const iv = setInterval(() => {
-      if (waiting) return;
+      if (waiting || currentProblem) return;
       const elapsed = Date.now() - startRef.current;
       const probs = problemsRef.current;
-      if (problemIdx < probs.length && elapsed >= probs[problemIdx].showAt && !currentProblem) {
+      if (problemIdx < probs.length && elapsed >= probs[problemIdx].showAt) {
         setCurrentProblem(probs[problemIdx]);
         setInputStr('');
       }
@@ -70,25 +78,27 @@ export default function MathDuelGame() {
     setTimeout(() => setFloats(prev => prev.filter(f => f.id !== fid)), 700);
   };
 
-  // Simple tap handler - works on both mobile and desktop
   const tapKey = useCallback((key: string) => {
-    playHit(); // feedback sound
+    playHit();
     if (navigator.vibrate) navigator.vibrate(5);
 
-    if (key === 'DEL') {
-      setInputStr(prev => prev.slice(0, -1));
-      return;
-    }
-    if (key === 'NEG') {
-      setInputStr(prev => prev.startsWith('-') ? prev.slice(1) : '-' + prev);
-      return;
-    }
+    if (key === 'DEL') { setInputStr(prev => prev.slice(0, -1)); return; }
+    if (key === 'NEG') { setInputStr(prev => prev.startsWith('-') ? prev.slice(1) : '-' + prev); return; }
+
     if (key === 'GO') {
       if (!currentProblem || timeLeft <= 0 || inputStr === '' || inputStr === '-') return;
       const numAnswer = parseInt(inputStr);
       if (isNaN(numAnswer)) return;
 
       const correct = numAnswer === currentProblem.answer;
+
+      // === ALWAYS SEND TO SERVER FIRST ===
+      const mid = matchIdRef.current;
+      if (mid) {
+        console.log('[MathDuel] Sending answer to server:', { matchId: mid, problemId: currentProblem.id, answer: numAnswer, correct });
+        sendGameInput(mid, 'math_answer', { problemId: currentProblem.id, answer: numAnswer });
+      }
+
       if (correct) {
         const ns = streak + 1;
         setStreak(ns);
@@ -106,9 +116,9 @@ export default function MathDuelGame() {
         addFloat(`❌ เฉลย: ${currentProblem.answer}`, '#F87171');
       }
 
-      if (matchId) sendGameInput(matchId, 'math_answer', { problemId: currentProblem.id, answer: numAnswer });
       setTimeout(() => setFlash(null), 300);
 
+      // Move to next
       setWaiting(true);
       setCurrentProblem(null);
       setInputStr('');
@@ -121,9 +131,10 @@ export default function MathDuelGame() {
     if (inputStr.replace('-', '').length < 6) {
       setInputStr(prev => prev + key);
     }
-  }, [currentProblem, inputStr, streak, matchId, timeLeft]);
+  }, [currentProblem, inputStr, streak, timeLeft]);
 
   const isUrgent = timeLeft <= 5;
+  // Show server score if available, otherwise local
   const displayScore = myScore > 0 ? myScore : localScore;
 
   return (
@@ -149,12 +160,10 @@ export default function MathDuelGame() {
         {streak >= 3 && <span className="text-cute-orange font-black text-xs animate-[bounce-cute_0.5s_ease_infinite]">🔥 Streak x{streak}!</span>}
       </div>
 
-      {/* Problem Display - with Einstein bg */}
+      {/* Problem Display */}
       <div className={`rounded-2xl p-4 mb-2 text-center relative overflow-hidden transition-colors ${flash === 'correct' ? 'bg-green-50' : flash === 'wrong' ? 'bg-red-50' : ''}`}
         style={{ backgroundImage: 'url(/bg-math.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        {/* Overlay */}
         <div className="absolute inset-0 bg-black/60 rounded-2xl" />
-
         <div className="relative z-10">
           {currentProblem ? (
             <div className="animate-[pop_0.3s_ease]">
@@ -172,12 +181,10 @@ export default function MathDuelGame() {
             </div>
           ) : (
             <div className="text-white text-sm py-4 animate-pulse" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-              {problemIdx === 0 ? '🧠 เตรียมตัว! โจทย์กำลังมา...' : waiting ? '✨ โจทย์ถัดไป...' : '⏳ รอโจทย์...'}
+              {problemIdx === 0 ? '🧠 เตรียมตัว!' : waiting ? '✨ โจทย์ถัดไป...' : '⏳ รอโจทย์...'}
             </div>
           )}
         </div>
-
-        {/* Float scores */}
         {floats.map(f => <div key={f.id} className="score-float z-20" style={{ left: '50%', top: '15%', color: f.color, transform: 'translateX(-50%)' }}>{f.text}</div>)}
       </div>
 
@@ -187,25 +194,22 @@ export default function MathDuelGame() {
         <span className="text-cute-gray">🔥 Streak: <b className="text-cute-orange">{streak}</b></span>
       </div>
 
-      {/* Number Pad — TOUCH FRIENDLY */}
+      {/* Number Pad */}
       <div className="grid grid-cols-3 gap-1.5 flex-1">
         {['1','2','3','4','5','6','7','8','9','NEG','0','DEL'].map(n => (
-          <button key={n}
-            onClick={() => tapKey(n)}
+          <button key={n} onClick={() => tapKey(n)}
             className={`cute-btn text-xl font-bold rounded-2xl flex items-center justify-center touch-manipulation ${
               n === 'DEL' ? 'bg-cute-red/10 text-cute-red active:bg-cute-red/20' :
               n === 'NEG' ? 'bg-cute-blue/10 text-cute-blue text-base active:bg-cute-blue/20' :
               'bg-white text-cute-dark border-2 border-cute-border active:bg-cute-pink/10 active:border-cute-pink'
-            }`}
-            style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
+            }`} style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
             {n === 'DEL' ? '⌫' : n === 'NEG' ? '+/-' : n}
           </button>
         ))}
       </div>
 
-      {/* Submit button */}
-      <button
-        onClick={() => tapKey('GO')}
+      {/* Submit */}
+      <button onClick={() => tapKey('GO')}
         className="cute-btn w-full h-14 mt-1.5 bg-cute-pink text-white text-lg font-black shadow-lg shadow-cute-pink/20 active:bg-cute-pink/80 touch-manipulation"
         style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>
         ✅ ส่งคำตอบ
