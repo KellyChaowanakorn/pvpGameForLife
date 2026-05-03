@@ -1,76 +1,44 @@
-import { useGameStore, GameMode } from '../lib/store';
-import { findMatch } from '../lib/socket';
-
-const TAP_MODES = [
-  { id: 'target_tap' as GameMode, name: 'Target Tap', emoji: '🎯', desc: 'เป้าสุ่มขึ้น กดให้ตรง!', detail: '⭐ทอง +5 · 💀บอส +10 (กด 3 ครั้ง)', color: '#FF6B9D' },
-  { id: 'combo_tap' as GameMode, name: 'Combo Tap', emoji: '🔥', desc: 'กดสีให้ตรง สร้าง combo!', detail: 'Combo 10+ = 🔥 Fire Mode! · 🌈 Rainbow = +10', color: '#FFD93D' },
-  { id: 'endurance' as GameMode, name: 'Endurance', emoji: '💎', desc: 'กดจังหวะให้ตรงวง!', detail: 'Perfect +3 · ☠️ Danger +8 · BPM เร็วขึ้น', color: '#4FC3F7' },
-];
-
-const OTHER_GAMES: Record<string, { name: string; emoji: string; desc: string; howTo: string; color: string }> = {
-  memory_flip: { name: 'Memory Flip', emoji: '🧠', desc: 'เปิดการ์ดจับคู่ ใครจับคู่ได้เร็วกว่าชนะ!', howTo: 'จำตำแหน่งการ์ด → เปิดจับคู่ให้เร็วที่สุด → Combo = คะแนน x5!', color: '#A855F7' },
-  math_duel: { name: 'Math Duel', emoji: '🔢', desc: 'โจทย์เลข ใครตอบถูกเร็วกว่าชนะ!', howTo: 'อ่านโจทย์ → กดเลขตอบ → กดส่ง! Streak 5+ = bonus +3!', color: '#4FC3F7' },
-  archer_battle: { name: 'Archer Battle', emoji: '🏹', desc: 'ผลัดยิงธนูใส่กัน! 3 หัวใจ ใครหมดก่อนแพ้!', howTo: 'เลือกมุม → ล็อค → power bar วิ่ง → กดยิงตอนพลังพอดี!', color: '#FF8C42' },
-};
+import { useNavigate } from 'react-router-dom';
+import { useGameStore } from '../lib/store';
 
 export default function ModeSelect() {
-  const { setScreen, setGameMode, gameMode } = useGameStore();
-  const select = (mode: GameMode) => { setGameMode(mode); findMatch(mode); };
+  const navigate = useNavigate();
+  const setCurrentMode = useGameStore((s) => s.setCurrentMode);
 
-  const otherGame = OTHER_GAMES[gameMode];
-  if (otherGame) {
-    return (
-      <div className="animate-[fadeIn_0.3s_ease]">
-        <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => setScreen('lobby')} className="text-cute-gray hover:text-cute-dark text-xl">←</button>
-          <div className="text-lg font-bold text-cute-dark">{otherGame.emoji} {otherGame.name}</div>
-        </div>
-        <div className="cute-card p-6 text-center mb-4">
-          <div className="text-6xl mb-3">{otherGame.emoji}</div>
-          <div className="text-xl font-black text-cute-dark mb-2">{otherGame.name}</div>
-          <div className="text-cute-gray text-sm mb-4">{otherGame.desc}</div>
-          <div className="cute-card p-3 mb-4 bg-cute-soft">
-            <div className="text-xs text-cute-dark font-semibold">📌 วิธีเล่น</div>
-            <div className="text-[11px] text-cute-gray mt-1">{otherGame.howTo}</div>
-          </div>
-          <button onClick={() => select(gameMode)}
-            className="cute-btn w-full py-4 text-white font-bold text-base shadow-lg" style={{ background: otherGame.color, boxShadow: `0 8px 20px ${otherGame.color}40` }}>
-            🎮 เริ่มเล่น! (฿5)
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const modes = [
+    { id: 'archer_battle', name: 'Archer Battle', description: 'Aim and shoot arrows to defeat your opponent!', icon: '🏹', color: 'from-red-500 to-orange-500', instructions: 'Swipe to aim, release to shoot. Hit the enemy before they hit you!' },
+    { id: 'memory_match', name: 'Memory Match', description: 'Find matching pairs faster than your opponent!', icon: '🧠', color: 'from-blue-500 to-purple-500', instructions: 'Tap cards to flip them. Match pairs to score points. Most matches wins!' },
+    { id: 'speed_quiz', name: 'Speed Quiz', description: 'Answer questions quickly to beat your opponent!', icon: '⚡', color: 'from-yellow-500 to-red-500', instructions: 'Read the question and tap the correct answer. Speed matters!' },
+    { id: 'puzzle_rush', name: 'Puzzle Rush', description: 'Solve quick puzzles in a 30-second race!', icon: '🧩', color: 'from-green-400 to-cyan-500', instructions: 'Tap numbers in order, match colors, find missing tiles. Fastest solver wins!' },
+    { id: 'card_clash', name: 'Card Clash', description: 'Strategic card duels with Attack, Block, and Trick!', icon: '⚔️', color: 'from-purple-600 to-pink-600', instructions: 'Attack beats Trick, Trick beats Block, Block beats Attack. Win 6 rounds!' },
+    { id: 'dodge_duel', name: 'Dodge Duel', description: 'Dodge obstacles and collect coins in 3 lanes!', icon: '🏃', color: 'from-indigo-500 to-purple-600', instructions: 'Tap left/right buttons to switch lanes. Avoid obstacles, collect coins!' },
+    { id: 'slot_machine', name: 'Slot Machine', description: 'Spin the reels and match symbols for rewards!', icon: '🎰', color: 'from-yellow-400 to-orange-500', instructions: 'Tap to spin. Match 3 symbols to win big! Pure luck and fun!' },
+  ];
+
+  const handleSelect = (modeId: string) => {
+    setCurrentMode(modeId as any);
+    navigate(`/game/${modeId}`);
+  };
 
   return (
-    <div className="animate-[fadeIn_0.3s_ease]">
-      <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => setScreen('lobby')} className="text-cute-gray hover:text-cute-dark text-xl">←</button>
-        <div>
-          <div className="text-lg font-bold text-cute-dark">⚡ Tap Speed Battle</div>
-          <div className="text-cute-gray text-xs">เลือก Mode</div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-3">
-        {TAP_MODES.map((mode) => (
-          <button key={mode.id} onClick={() => select(mode.id)}
-            className="cute-card p-5 text-left transition-all hover:border-cute-pink active:scale-[0.98] relative overflow-hidden">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style={{ background: mode.color + '18' }}>{mode.emoji}</div>
+    <div className="min-h-screen bg-gradient-to-b from-purple-900 to-blue-900 p-4">
+      <h2 className="text-2xl font-bold text-white text-center mb-6">Select Game Mode</h2>
+      <div className="space-y-4">
+        {modes.map((mode) => (
+          <button key={mode.id} onClick={() => handleSelect(mode.id)}
+            className={`w-full bg-gradient-to-r ${mode.color} rounded-xl p-4 text-left text-white shadow-lg transform transition-all hover:scale-105 active:scale-95`}>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{mode.icon}</span>
               <div className="flex-1">
-                <div className="font-bold text-base text-cute-dark mb-1">{mode.name}</div>
-                <div className="text-cute-dark/70 text-sm mb-1">{mode.desc}</div>
-                <div className="text-cute-gray text-xs">{mode.detail}</div>
-              </div>
-              <div className="text-right">
-                <div className="text-cute-pink font-bold text-sm">฿5</div>
-                <div className="text-cute-gray text-[9px]">entry</div>
+                <h3 className="font-bold text-lg">{mode.name}</h3>
+                <p className="text-sm opacity-90">{mode.description}</p>
+                <p className="text-xs opacity-75 mt-1">{mode.instructions}</p>
               </div>
             </div>
           </button>
         ))}
       </div>
-      <div className="text-center text-cute-gray text-xs mt-6">⏱ ทุก mode เล่น 30 วินาที · ใครคะแนนสูงกว่าชนะ</div>
+      <button onClick={() => navigate('/lobby')} className="mt-6 w-full bg-gray-700 text-white py-3 rounded-xl font-semibold">Back to Lobby</button>
     </div>
   );
 }
